@@ -1,0 +1,1 @@
+ALTER TABLE "attendance" ALTER COLUMN "student_id" SET DATA TYPE uuid;

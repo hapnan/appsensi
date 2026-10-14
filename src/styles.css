@@ -1,0 +1,178 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+
+@import 'tw-animate-css';
+
+/*
+ * Design tokens from the Stitch "Passkey Attendance" design system, mapped onto
+ * the shadcn/ui CSS variables so every shadcn component picks them up.
+ */
+:root {
+  --background: #f8f9ff; /* surface */
+  --foreground: #0b1c30; /* on-surface */
+  --card: #ffffff; /* surface-container-lowest */
+  --card-foreground: #0b1c30;
+  --popover: #ffffff;
+  --popover-foreground: #0b1c30;
+  --primary: #3525cd;
+  --primary-foreground: #ffffff;
+  --secondary: #e5eeff; /* surface-container */
+  --secondary-foreground: #0b1c30;
+  --muted: #eff4ff; /* surface-container-low */
+  --muted-foreground: #464555; /* on-surface-variant */
+  --accent: #e5eeff;
+  --accent-foreground: #0b1c30;
+  --destructive: #ba1a1a;
+  --destructive-foreground: #ffffff;
+  --border: #c7c4d8; /* outline-variant */
+  --input: #c7c4d8;
+  --ring: #4f46e5;
+  --radius: 0.5rem;
+
+  /* Extra Stitch tokens */
+  --primary-container: #4f46e5;
+  --primary-fixed: #e2dfff;
+  --outline: #777587;
+  --surface-container-high: #dce9ff;
+  --secondary-container: #39b8fd;
+  --success: #10b981;
+}
+
+@theme inline {
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Hanken Grotesk', 'Inter', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, monospace;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-primary-container: var(--primary-container);
+  --color-primary-fixed: var(--primary-fixed);
+  --color-outline: var(--outline);
+  --color-surface-container-high: var(--surface-container-high);
+  --color-secondary-container: var(--secondary-container);
+  --color-success: var(--success);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@theme {
+  --animate-orb-1: orb-float-1 16s ease-in-out infinite;
+  --animate-orb-2: orb-float-2 20s ease-in-out infinite;
+  --animate-orb-3: orb-float-3 18s ease-in-out infinite;
+  --animate-float-gentle: float-gentle 7s ease-in-out infinite;
+  --animate-fade-down: fade-in-down 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-up: fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-zoom-glow: zoom-in-glow 0.9s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-glow-pulse: glow-pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-aura: aura 2s ease-in-out infinite;
+
+  @keyframes orb-float-1 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(60px, -45px) scale(1.12); }
+    66% { transform: translate(-40px, 35px) scale(0.92); }
+  }
+  @keyframes orb-float-2 {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    33% { transform: translate(-70px, 50px) scale(1.15); }
+    66% { transform: translate(50px, -30px) scale(0.95); }
+  }
+  @keyframes orb-float-3 {
+    0%, 100% { transform: translate(0, 0) scale(0.95); }
+    50% { transform: translate(45px, 60px) scale(1.18); }
+  }
+  @keyframes float-gentle {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-7px); }
+  }
+  @keyframes fade-in-down {
+    from { opacity: 0; transform: translateY(-16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fade-in-up {
+    from { opacity: 0; transform: translateY(18px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes zoom-in-glow {
+    from { opacity: 0; transform: scale(0.94); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes glow-pulse {
+    0% { box-shadow: 0 0 0 0 rgb(79 70 229 / 0.35); }
+    70% { box-shadow: 0 0 0 14px rgb(79 70 229 / 0); }
+    100% { box-shadow: 0 0 0 0 rgb(79 70 229 / 0); }
+  }
+  @keyframes aura {
+    0%, 100% { transform: scale(0.95); opacity: 0.8; }
+    50% { transform: scale(1.15); opacity: 0.2; }
+  }
+  @keyframes shimmer-wave {
+    from { transform: translateX(-160%) skewX(-20deg); }
+    to { transform: translateX(220%) skewX(-20deg); }
+  }
+}
+
+/* Subtle architectural grid used behind the home hero. */
+@utility architectural-grid {
+  background-size: 40px 40px;
+  background-image:
+    linear-gradient(to right, rgb(79 70 229 / 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(79 70 229 / 0.04) 1px, transparent 1px);
+}
+
+/* Light beam that sweeps across the primary CTA. */
+@utility btn-shimmer {
+  position: relative;
+  overflow: hidden;
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: 60%;
+    background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.28), transparent);
+    animation: shimmer-wave 4.5s ease-in-out infinite;
+    pointer-events: none;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      animation: none;
+      display: none;
+    }
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  html,
+  body {
+    min-height: 100%;
+  }
+  body {
+    @apply bg-background font-sans text-foreground antialiased;
+  }
+  ::selection {
+    background-color: var(--primary-fixed);
+    color: #0f0069;
+  }
+}
