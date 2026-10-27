@@ -133,7 +133,6 @@ export const courses = pgTable(
 		credits: integer("credits").notNull().default(3), // Credit weight / SKS
 		description: text("description"),
 		facultyId: uuid("faculty_id")
-			.notNull()
 			.references(() => faculties.id, { onDelete: "cascade" }),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.defaultNow()
@@ -148,17 +147,15 @@ export const classSchedules = pgTable(
 	{
 		id: uuid("id").defaultRandom().primaryKey(),
 		courseId: uuid("course_id")
-			.notNull()
 			.references(() => courses.id, { onDelete: "cascade" }),
 		roomId: uuid("room_id")
-			.notNull()
 			.references(() => rooms.id, { onDelete: "cascade" }),
-		section: text("section").notNull().default("A"), // e.g. "A", "B", "01"
-		instructor: text("instructor").notNull(),
-		dayOfWeek: text("day_of_week").notNull(), // "Monday", "Tuesday", etc.
-		startTime: text("start_time").notNull(), // "09:00"
-		endTime: text("end_time").notNull(), // "11:30"
-		academicTerm: text("academic_term").notNull(), // e.g. "2026/2027-Odd"
+		section: text("section").default("A"), // e.g. "A", "B", "01"
+		instructor: text("instructor"),
+		dayOfWeek: text("day_of_week"), // "Monday", "Tuesday", etc.
+		startTime: text("start_time"), // "09:00"
+		endTime: text("end_time"), // "11:30"
+		academicTerm: text("academic_term"), // e.g. "2026/2027-Odd"
 		maxCapacity: integer("max_capacity"),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.defaultNow()
@@ -175,6 +172,7 @@ export const classSchedules = pgTable(
 		index("class_schedules_day_room_idx").on(t.roomId, t.dayOfWeek),
 	],
 );
+
 
 /** Student Class Schedules / Enrollments */
 export const studentSchedules = pgTable(
