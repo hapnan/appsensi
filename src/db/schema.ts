@@ -1,17 +1,17 @@
+import { sql } from "drizzle-orm";
 import {
+	bigint,
 	boolean,
+	bytea,
 	date,
 	index,
 	integer,
-	bytea,
 	pgTable,
 	text,
 	timestamp,
 	uniqueIndex,
 	uuid,
-	bigint,
 } from "drizzle-orm/pg-core";
-import { sql } from 'drizzle-orm' 
 
 /** Users table for WebAuthn authentication */
 export const users = pgTable("users", {
@@ -19,31 +19,41 @@ export const users = pgTable("users", {
 	email: text("email").notNull().unique(),
 	username: text("username").notNull().unique(),
 	displayName: text("display_name"),
-	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
-	updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(() => new Date()),
+	createdAt: timestamp("created_at", { withTimezone: true })
+		.defaultNow()
+		.notNull(),
+	updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
+		() => new Date(),
+	),
 });
 
-
-export const webAuthnUser = pgTable("webauthn_users", {
-	id: uuid("id").defaultRandom().primaryKey(),
-	userId: uuid("user_id")
-		.notNull()
-		.references(() => users.id, { onDelete: "cascade" }),
-	rpId: text("rp_id").notNull(),
-	handler: bytea("handler").notNull(),
-	createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+export const webAuthnUser = pgTable(
+	"webauthn_users",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		userId: uuid("user_id")
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
+		rpId: text("rp_id").notNull(),
+		handle: bytea("handle").notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
 	},
-	(t) => [uniqueIndex("webauthn_users_user_rp_idx").on(t.userId, t.rpId), uniqueIndex("webauthn_users_handler_idx").on(t.rpId, t.handler)],
+	(t) => [
+		uniqueIndex("webauthn_users_user_rp_idx").on(t.userId, t.rpId),
+		uniqueIndex("webauthn_users_handler_idx").on(t.rpId, t.handle),
+	],
 );
 
 /** WebAuthn credentials for Users */
 export const credentials = pgTable(
 	"credentials",
 	{
-		id: uuid("id", ).default(sql`uuidv7()`).primaryKey(),
+		id: uuid("id").default(sql`uuidv7()`).primaryKey(),
 		userId: uuid("user_id")
-		.notNull()	
-		.references(() => users.id, { onDelete: "cascade" }),
+			.notNull()
+			.references(() => users.id, { onDelete: "cascade" }),
 		credentialId: bytea("credential_id").notNull().unique(), // stored as base64 string or bytea in postgres
 		aaguid: bytea("aaguid").notNull(),
 		publicKey: bytea("public_key").notNull(),
@@ -60,10 +70,15 @@ export const credentials = pgTable(
 		backupEligible: boolean("backup_eligible").notNull().default(false),
 		backupState: boolean("backup_state").notNull().default(false),
 		extensions: bytea("extensions").$default(() => sql`NULL`),
-		createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
 		lastUsedAt: timestamp("last_used_at", { withTimezone: true }),
 	},
-	(t) => [uniqueIndex("credentials_user_credential_idx").on(t.userId, t.credentialId), index("credentials_user_idx").on(t.userId)]
+	(t) => [
+		uniqueIndex("credentials_user_credential_idx").on(t.userId, t.credentialId),
+		index("credentials_user_idx").on(t.userId),
+	],
 );
 
 /** Campus Buildings (A through I) */
@@ -94,17 +109,23 @@ export const rooms = pgTable(
 );
 
 /** Students that can check in. */
-export const students = pgTable("students", {
-	id: uuid("id").defaultRandom().primaryKey(),
-	studentId: text("student_id").notNull().unique(), // e.g. "STU-882194"
-	name: text("name").notNull(),
-	department: text("department"),
-	photoUrl: text("photo_url"),
-	userId: uuid("user_id").references(() => users.id, { onDelete: "set null" }),
-	createdAt: timestamp("created_at", { withTimezone: true })
-		.defaultNow()
-		.notNull(),
-}, (t) => [index("students_user_idx").on(t.userId)]);
+export const students = pgTable(
+	"students",
+	{
+		id: uuid("id").defaultRandom().primaryKey(),
+		studentId: text("student_id").notNull().unique(), // e.g. "STU-882194"
+		name: text("name").notNull(),
+		department: text("department"),
+		photoUrl: text("photo_url"),
+		userId: uuid("user_id").references(() => users.id, {
+			onDelete: "set null",
+		}),
+		createdAt: timestamp("created_at", { withTimezone: true })
+			.defaultNow()
+			.notNull(),
+	},
+	(t) => [index("students_user_idx").on(t.userId)],
+);
 
 /** Academic Faculties / Units */
 export const faculties = pgTable(
@@ -132,8 +153,9 @@ export const courses = pgTable(
 		name: text("name").notNull(), // e.g. "Distributed Systems & Cloud Computing"
 		credits: integer("credits").notNull().default(3), // Credit weight / SKS
 		description: text("description"),
-		facultyId: uuid("faculty_id")
-			.references(() => faculties.id, { onDelete: "cascade" }),
+		facultyId: uuid("faculty_id").references(() => faculties.id, {
+			onDelete: "cascade",
+		}),
 		createdAt: timestamp("created_at", { withTimezone: true })
 			.defaultNow()
 			.notNull(),
@@ -146,10 +168,10 @@ export const classSchedules = pgTable(
 	"class_schedules",
 	{
 		id: uuid("id").defaultRandom().primaryKey(),
-		courseId: uuid("course_id")
-			.references(() => courses.id, { onDelete: "cascade" }),
-		roomId: uuid("room_id")
-			.references(() => rooms.id, { onDelete: "cascade" }),
+		courseId: uuid("course_id").references(() => courses.id, {
+			onDelete: "cascade",
+		}),
+		roomId: uuid("room_id").references(() => rooms.id, { onDelete: "cascade" }),
 		section: text("section").default("A"), // e.g. "A", "B", "01"
 		instructor: text("instructor"),
 		dayOfWeek: text("day_of_week"), // "Monday", "Tuesday", etc.
@@ -172,7 +194,6 @@ export const classSchedules = pgTable(
 		index("class_schedules_day_room_idx").on(t.roomId, t.dayOfWeek),
 	],
 );
-
 
 /** Student Class Schedules / Enrollments */
 export const studentSchedules = pgTable(
@@ -200,7 +221,7 @@ export const studentSchedules = pgTable(
 	],
 );
 
-/** One row per student, per room, per day. */
+/** One row per student, per class session, per day. */
 export const attendance = pgTable(
 	"attendance",
 	{
@@ -211,10 +232,9 @@ export const attendance = pgTable(
 		roomId: uuid("room_id")
 			.notNull()
 			.references(() => rooms.id, { onDelete: "cascade" }),
-		classScheduleId: uuid("class_schedule_id").references(
-			() => classSchedules.id,
-			{ onDelete: "set null" },
-		),
+		classScheduleId: uuid("class_schedule_id")
+			.notNull()
+			.references(() => classSchedules.id, { onDelete: "cascade" }),
 		sessionDate: date("session_date", { mode: "string" }).notNull(),
 		checkedInAt: timestamp("checked_in_at", { withTimezone: true })
 			.defaultNow()
@@ -223,7 +243,7 @@ export const attendance = pgTable(
 	(t) => [
 		uniqueIndex("attendance_student_room_day_idx").on(
 			t.studentId,
-			t.roomId,
+			t.classScheduleId,
 			t.sessionDate,
 		),
 		index("attendance_room_day_idx").on(t.roomId, t.sessionDate),
