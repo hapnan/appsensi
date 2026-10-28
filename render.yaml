@@ -14,7 +14,7 @@ projects:
             maxShutdownDelaySeconds: 120
             domain: hapnanarsad.id
             preDeployCommand: bun run db:push
-            initialDeployHook: bun run db:seed
+            initialDeployHook: ./seed.sh
             envVars:
               - key: NITRO_PRESET
                 value: render-com
