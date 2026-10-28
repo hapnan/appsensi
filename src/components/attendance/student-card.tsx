@@ -1,4 +1,5 @@
-import { Fingerprint } from "lucide-react";
+import { Link } from "@tanstack/react-router";
+import { Fingerprint, KeyRound } from "lucide-react";
 import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Card } from "#/components/ui/card";
@@ -7,10 +8,14 @@ import { cn } from "#/lib/utils";
 
 export function StudentCard({
 	student,
+	room,
+	date,
 	leaving,
 	onCheckIn,
 }: {
 	student: PendingStudent;
+	room: string;
+	date?: string;
 	/** Plays the exit animation once the student has checked in. */
 	leaving?: boolean;
 	onCheckIn: (student: PendingStudent) => void;
@@ -32,17 +37,30 @@ export function StudentCard({
 						width={480}
 						height={360}
 						loading="lazy"
-						className="size-full object-cover object-[center_30%] transition-transform duration-300 group-hover:scale-105"
+						className={cn(
+							"size-full object-cover object-[center_30%] transition-transform duration-300 group-hover:scale-105",
+							!student.isRegistered && "opacity-85",
+						)}
 					/>
 				) : (
 					<div className="flex size-full items-center justify-center font-display font-bold text-5xl text-primary/40">
 						{initials(student.name)}
 					</div>
 				)}
-				<Badge className="absolute top-2.5 left-2.5 gap-1.5 rounded border-0 bg-amber-500/90 font-mono font-semibold text-[10px] text-white uppercase backdrop-blur-sm">
-					<span className="size-1.5 rounded-full bg-white" />
-					Awaiting
-				</Badge>
+				{student.isRegistered ? (
+					<Badge className="absolute top-2.5 left-2.5 gap-1.5 rounded border-0 bg-amber-500/90 font-mono font-semibold text-[10px] text-white uppercase backdrop-blur-sm">
+						<span className="size-1.5 rounded-full bg-white" />
+						Awaiting
+					</Badge>
+				) : (
+					<Badge
+						variant="secondary"
+						className="absolute top-2.5 left-2.5 gap-1.5 rounded border border-border/60 bg-background/85 font-mono font-semibold text-[10px] text-muted-foreground uppercase backdrop-blur-sm"
+					>
+						<span className="size-1.5 rounded-full bg-muted-foreground/70" />
+						No Passkey
+					</Badge>
+				)}
 			</div>
 
 			<div className="flex flex-1 flex-col gap-3 p-4">
@@ -66,14 +84,27 @@ export function StudentCard({
 					</span>
 				</div>
 
-				<Button
-					type="button"
-					onClick={() => onCheckIn(student)}
-					className="mt-auto w-full font-semibold shadow-sm active:scale-[0.98]"
-				>
-					<Fingerprint />
-					Check In
-				</Button>
+				{student.isRegistered ? (
+					<Button
+						type="button"
+						onClick={() => onCheckIn(student)}
+						className="mt-auto w-full font-semibold shadow-sm active:scale-[0.98]"
+					>
+						<Fingerprint />
+						Check In
+					</Button>
+				) : (
+					<Button
+						asChild
+						variant="outline"
+						className="mt-auto w-full font-semibold active:scale-[0.98]"
+					>
+						<Link to="/register" search={{ q: student.studentId, room, date }}>
+							<KeyRound className="size-4 text-primary" />
+							Register Passkey
+						</Link>
+					</Button>
+				)}
 			</div>
 		</Card>
 	);

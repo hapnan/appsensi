@@ -1,4 +1,4 @@
-import { DoorOpen, Fingerprint, ShieldCheck } from "lucide-react";
+import { CalendarDays, DoorOpen, Fingerprint, ShieldCheck } from "lucide-react";
 import {
 	AlertDialog,
 	AlertDialogCancel,
@@ -9,24 +9,24 @@ import {
 	AlertDialogTitle,
 } from "#/components/ui/alert-dialog";
 import { Button } from "#/components/ui/button";
-import type { CheckInMode, PendingStudent } from "#/hooks/use-passkey-check-in";
+import type { PendingStudent } from "#/hooks/use-passkey-check-in";
 
 export type CheckInPhase = "confirm" | "verifying";
 
 export function CheckInDialog({
 	open,
 	phase,
-	mode,
 	student,
 	roomLabel,
+	dateLabel,
 	onCancel,
 	onConfirm,
 }: {
 	open: boolean;
 	phase: CheckInPhase;
-	mode: CheckInMode | null;
 	student: PendingStudent | null;
 	roomLabel: string;
+	dateLabel?: string;
 	onCancel: () => void;
 	onConfirm: () => void;
 }) {
@@ -42,7 +42,10 @@ export function CheckInDialog({
 		>
 			<AlertDialogContent className="gap-5 sm:max-w-120">
 				{verifying ? (
-					<VerifyingStep mode={mode} studentName={student?.name ?? ""} />
+					<VerifyingStep
+						studentName={student?.name ?? ""}
+						username={student?.username ?? student?.studentId ?? ""}
+					/>
 				) : (
 					<>
 						<AlertDialogHeader className="flex flex-row items-center gap-3 text-left">
@@ -54,7 +57,7 @@ export function CheckInDialog({
 									Confirm check-in
 								</AlertDialogTitle>
 								<AlertDialogDescription className="text-xs">
-									You'll be asked to verify with your passkey.
+									You'll be asked to verify with your registered passkey.
 								</AlertDialogDescription>
 							</div>
 						</AlertDialogHeader>
@@ -63,10 +66,18 @@ export function CheckInDialog({
 							<p className="text-foreground text-xs">
 								Record attendance for this session:
 							</p>
-							<p className="flex items-center gap-1.5 font-display font-semibold text-base text-primary">
-								<DoorOpen className="size-4" />
-								Room {roomLabel}
-							</p>
+							<div className="flex flex-wrap items-center justify-between gap-2">
+								<p className="flex items-center gap-1.5 font-display font-semibold text-base text-primary">
+									<DoorOpen className="size-4" />
+									Room {roomLabel}
+								</p>
+								{dateLabel && (
+									<span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-0.5 font-mono text-[11px] text-muted-foreground">
+										<CalendarDays className="size-3 text-primary" />
+										{dateLabel}
+									</span>
+								)}
+							</div>
 							<div className="flex items-center justify-between gap-3 border-t pt-2 text-muted-foreground text-xs">
 								<span className="flex min-w-0 items-center gap-2">
 									{student?.photoUrl && (
@@ -81,7 +92,7 @@ export function CheckInDialog({
 									</span>
 								</span>
 								<span className="shrink-0 font-mono text-[11px] text-outline">
-									{student?.studentId}
+									{student?.username ?? student?.studentId}
 								</span>
 							</div>
 						</div>
@@ -105,23 +116,12 @@ export function CheckInDialog({
 }
 
 function VerifyingStep({
-	mode,
 	studentName,
+	username,
 }: {
-	mode: CheckInMode | null;
 	studentName: string;
+	username: string;
 }) {
-	const copy =
-		mode === "register"
-			? {
-					title: "Creating your passkey…",
-					body: `First check-in for ${studentName}. Follow your device's prompt to save a passkey — you'll use it for future check-ins.`,
-				}
-			: {
-					title: "Verifying WebAuthn Passkey credential…",
-					body: "Touch your Touch ID sensor or activate your hardware security key now to sign the session assertion.",
-				};
-
 	return (
 		<div
 			className="flex flex-col items-center gap-6 px-4 py-6 text-center"
@@ -134,10 +134,12 @@ function VerifyingStep({
 			</div>
 			<div className="space-y-2">
 				<AlertDialogTitle className="font-bold font-display text-lg">
-					{copy.title}
+					Verifying WebAuthn Passkey…
 				</AlertDialogTitle>
-				<AlertDialogDescription className="mx-auto max-w-[320px] text-xs">
-					{copy.body}
+				<AlertDialogDescription className="mx-auto max-w-[340px] text-xs">
+					Follow your device or browser prompt to verify the passkey for{" "}
+					<strong>{studentName}</strong> (
+					<span className="font-mono">{username}</span>).
 				</AlertDialogDescription>
 			</div>
 		</div>
