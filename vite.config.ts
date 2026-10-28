@@ -8,7 +8,7 @@ import { defineConfig } from "vite";
 
 const config = defineConfig({
 	resolve: { tsconfigPaths: true },
-	plugins: [devtools(), tailwindcss(), tanstackStart(), viteReact(), nitro({ preset: 'bun' })],
+	plugins: [devtools(), tailwindcss(), tanstackStart(), viteReact(), nitro()],
 });
 
 export default config;
