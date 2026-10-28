@@ -3,6 +3,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
 	ArrowLeft,
 	BookOpen,
+	CalendarDays,
 	CalendarX2,
 	CircleCheckBig,
 	DoorClosed,
@@ -10,8 +11,16 @@ import {
 	Users,
 	UserX,
 } from "lucide-react";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+	useCallback,
+	useEffect,
+	useMemo,
+	useRef,
+	useState,
+	useTransition,
+} from "react";
 import { toast } from "sonner";
+import { z } from "zod";
 import {
 	CheckInDialog,
 	type CheckInPhase,
@@ -21,7 +30,6 @@ import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
 import { Input } from "#/components/ui/input";
 import {
-	type CheckInMode,
 	type CheckInResult,
 	describeCheckInError,
 	type PendingStudent,
@@ -29,17 +37,31 @@ import {
 	usePasskeyCheckIn,
 } from "#/hooks/use-passkey-check-in";
 import { useTRPC } from "#/integrations/trpc/react";
-import { parseRoom, roomCodeSchema } from "#/lib/room";
+import {
+	formatDisplayDate,
+	sessionDateSchema,
+	todaySessionDate,
+} from "#/lib/date";
+import { DEFAULT_ROOM, parseRoom, roomCodeSchema } from "#/lib/room";
 import { cn } from "#/lib/utils";
+
+const attendanceSearchSchema = z.object({
+	date: sessionDateSchema.optional().catch(undefined),
+});
 
 export const Route = createFileRoute("/attendance/$roomId")({
 	params: {
 		parse: ({ roomId }) => ({ roomId: roomCodeSchema.parse(roomId) }),
 		stringify: ({ roomId }) => ({ roomId }),
 	},
-	loader: async ({ context, params }) => {
-		await context.queryClient.query(
-			context.trpc.attendance.roster.queryOptions({ room: params.roomId }),
+	validateSearch: attendanceSearchSchema,
+	loaderDeps: ({ search: { date } }) => ({ date }),
+	loader: async ({ context, params, deps }) => {
+		await context.queryClient.ensureQueryData(
+			context.trpc.attendance.roster.queryOptions({
+				room: params.roomId,
+				date: deps.date,
+			}),
 		);
 	},
 	head: ({ params }) => ({
@@ -55,22 +77,41 @@ const EXIT_ANIMATION_MS = 300;
 type DialogState = {
 	open: boolean;
 	phase: CheckInPhase;
-	mode: CheckInMode | null;
 	student: PendingStudent | null;
 };
 
+function formatSessionLabel(schedule: Roster["availableSchedules"][number]) {
+	const base = `${schedule.courseCode}-${schedule.section}`;
+	if (schedule.startTime && schedule.endTime) {
+		return `${base} (${schedule.startTime}–${schedule.endTime})`;
+	}
+	if (schedule.startTime) {
+		return `${base} (${schedule.startTime})`;
+	}
+	return base;
+}
+
 function AttendancePage() {
 	const { roomId: room } = Route.useParams();
+	const { date: requestedDate } = Route.useSearch();
 	const { label } = parseRoom(room);
 	const trpc = useTRPC();
 	const queryClient = useQueryClient();
 
-	const [selectedScheduleId, setSelectedScheduleId] = useState<
-		string | undefined
-	>(undefined);
+	const [selection, setSelection] = useState<{
+		room: string;
+		date: string | undefined;
+		scheduleId: string;
+	} | null>(null);
+	const [isSwitchingSession, startTransition] = useTransition();
+	const selectedScheduleId =
+		selection?.room === room && selection.date === requestedDate
+			? selection.scheduleId
+			: undefined;
 
 	const rosterOptions = trpc.attendance.roster.queryOptions({
 		room,
+		date: requestedDate,
 		scheduleId: selectedScheduleId,
 	});
 
@@ -80,6 +121,14 @@ function AttendancePage() {
 		refetchInterval: 15_000,
 	});
 
+	const activeDate = roster.sessionDate;
+	const isCustomDate = activeDate !== todaySessionDate();
+	const dateLabel = formatDisplayDate(activeDate);
+	const homeSearch = {
+		room: room !== DEFAULT_ROOM ? room : undefined,
+		date: isCustomDate ? activeDate : undefined,
+	};
+
 	const checkIn = usePasskeyCheckIn();
 
 	const [search, setSearch] = useState("");
@@ -87,7 +136,6 @@ function AttendancePage() {
 	const [dialog, setDialog] = useState<DialogState>({
 		open: false,
 		phase: "confirm",
-		mode: null,
 		student: null,
 	});
 	const searchRef = useRef<HTMLInputElement>(null);
@@ -115,13 +163,14 @@ function AttendancePage() {
 	}, [roster.pending, search]);
 
 	const closeDialog = useCallback(
-		() => setDialog((current) => ({ ...current, open: false })),
+		() =>
+			setDialog((current) => ({ ...current, open: false, phase: "confirm" })),
 		[],
 	);
 
 	const removeFromRoster = useCallback(
 		(result: CheckInResult) => {
-			setLeaving((current) => new Set(current).add(result.studentId));
+			setLeaving((current) => new Set(current).add(result.id));
 			window.setTimeout(() => {
 				queryClient.setQueryData<Roster>(rosterOptions.queryKey, (current) =>
 					current
@@ -129,14 +178,14 @@ function AttendancePage() {
 								...current,
 								present: current.present + 1,
 								pending: current.pending.filter(
-									(student) => student.id !== result.studentId,
+									(student) => student.id !== result.id,
 								),
 							}
 						: current,
 				);
 				setLeaving((current) => {
 					const next = new Set(current);
-					next.delete(result.studentId);
+					next.delete(result.id);
 					return next;
 				});
 				void queryClient.invalidateQueries({
@@ -151,21 +200,31 @@ function AttendancePage() {
 		const student = dialog.student;
 		if (!student) return;
 
-		setDialog((current) => ({ ...current, phase: "verifying", mode: null }));
+		setDialog((current) => ({ ...current, phase: "verifying" }));
 		try {
 			const result = await checkIn({
 				room,
 				studentId: student.id,
+				username: student.username,
 				scheduleId: roster.schedule?.id,
-				onMode: (mode) => setDialog((current) => ({ ...current, mode })),
+				date: requestedDate,
 			});
 			closeDialog();
+			const checkedInTime = new Date(result.checkedInAt).toLocaleTimeString(
+				[],
+				{
+					hour: "2-digit",
+					minute: "2-digit",
+				},
+			);
 			toast.success(`${result.name} checked in`, {
-				description: `Room ${label} · ${new Date(result.checkedInAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+				description: isCustomDate
+					? `Room ${label} · ${formatDisplayDate(activeDate, { includeYear: false })} · ${checkedInTime}`
+					: `Room ${label} · ${checkedInTime}`,
 			});
 			removeFromRoster(result);
 		} catch (error) {
-			closeDialog();
+			setDialog((current) => ({ ...current, phase: "confirm" }));
 			toast.error("Check-in failed", {
 				description: describeCheckInError(error),
 			});
@@ -184,7 +243,7 @@ function AttendancePage() {
 							size="icon"
 							className="shrink-0 rounded-full"
 						>
-							<Link to="/" aria-label="Back to room">
+							<Link to="/" search={homeSearch} aria-label="Back to room">
 								<ArrowLeft />
 							</Link>
 						</Button>
@@ -205,13 +264,24 @@ function AttendancePage() {
 						</div>
 					</div>
 
-					<div className="flex shrink-0 items-center gap-2 self-end sm:self-center">
+					<div className="flex shrink-0 flex-wrap items-center gap-2 self-end sm:self-center">
 						<div className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 shadow-sm">
 							<span className="size-2 animate-pulse rounded-full bg-success" />
 							<span className="font-medium font-mono text-[11px]">
-								Live Session:{" "}
+								{isCustomDate ? "Demo Session:" : "Live Session:"}{" "}
 								<strong className="text-primary">Room {label}</strong>
 							</span>
+						</div>
+						<div
+							className={cn(
+								"flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-medium font-mono text-[11px]",
+								isCustomDate
+									? "border-primary/30 bg-primary/10 text-primary"
+									: "bg-card text-muted-foreground shadow-sm",
+							)}
+						>
+							<CalendarDays className="size-3.5" />
+							<span>{dateLabel}</span>
 						</div>
 						<div className="rounded-full border bg-secondary px-3 py-1.5 font-medium font-mono text-[11px] text-muted-foreground">
 							{roster.present} / {roster.total} Present
@@ -245,8 +315,8 @@ function AttendancePage() {
 							</div>
 						</div>
 
-						{/* Section / Schedule Switcher if multiple courses exist for this room */}
-						{roster.availableSchedules.length > 1 && (
+						{/* Day's Session Switcher */}
+						{roster.availableSchedules.length > 0 && (
 							<div className="flex flex-wrap items-center gap-1.5">
 								<span className="mr-1 font-mono text-[11px] text-muted-foreground">
 									Sessions:
@@ -255,15 +325,25 @@ function AttendancePage() {
 									<button
 										key={s.id}
 										type="button"
-										onClick={() => setSelectedScheduleId(s.id)}
+										aria-pressed={s.id === roster.schedule?.id}
+										disabled={isSwitchingSession}
+										onClick={() =>
+											startTransition(() => {
+												setSelection({
+													room,
+													date: requestedDate,
+													scheduleId: s.id,
+												});
+											})
+										}
 										className={cn(
-											"rounded-md px-2.5 py-1 font-mono text-xs transition-colors",
+											"rounded-md px-2.5 py-1 font-mono text-xs transition-colors disabled:opacity-60",
 											s.id === roster.schedule?.id
 												? "bg-primary font-semibold text-primary-foreground"
 												: "bg-secondary text-muted-foreground hover:bg-secondary/80",
 										)}
 									>
-										{s.courseCode}-{s.section} ({s.dayOfWeek.slice(0, 3)})
+										{formatSessionLabel(s)}
 									</button>
 								))}
 							</div>
@@ -275,21 +355,28 @@ function AttendancePage() {
 					<EmptyState
 						icon={<CalendarX2 className="size-8" />}
 						title="No Scheduled Course"
-						body={`There are currently no courses or class sessions scheduled in Room ${label}.`}
-						action={<BackHomeButton />}
+						body={
+							isCustomDate
+								? `There are no courses or class sessions scheduled in Room ${label} on ${dateLabel}.`
+								: `There are no courses or class sessions scheduled in Room ${label} today.`
+						}
+						action={<BackHomeButton room={room} date={homeSearch.date} />}
 					/>
 				) : roster.total === 0 ? (
 					<EmptyState
 						icon={<Users className="size-8" />}
 						title="No Enrolled Students"
 						body={`No students are currently enrolled in ${roster.schedule.courseCode} (Section ${roster.schedule.section}).`}
-						action={<BackHomeButton />}
+						action={<BackHomeButton room={room} date={homeSearch.date} />}
 					/>
 				) : roster.pending.length === 0 ? (
 					<AllCheckedIn
 						label={label}
 						courseCode={roster.schedule.courseCode}
 						total={roster.total}
+						dateLabel={isCustomDate ? dateLabel : undefined}
+						room={room}
+						date={homeSearch.date}
 					/>
 				) : visible.length === 0 ? (
 					<EmptyState
@@ -303,12 +390,13 @@ function AttendancePage() {
 							<StudentCard
 								key={student.id}
 								student={student}
+								room={room}
+								date={homeSearch.date}
 								leaving={leaving.has(student.id)}
 								onCheckIn={(target) =>
 									setDialog({
 										open: true,
 										phase: "confirm",
-										mode: null,
 										student: target,
 									})
 								}
@@ -321,9 +409,9 @@ function AttendancePage() {
 			<CheckInDialog
 				open={dialog.open}
 				phase={dialog.phase}
-				mode={dialog.mode}
 				student={dialog.student}
 				roomLabel={label}
+				dateLabel={dateLabel}
 				onCancel={closeDialog}
 				onConfirm={confirmCheckIn}
 			/>
@@ -335,11 +423,18 @@ function AllCheckedIn({
 	label,
 	courseCode,
 	total,
+	dateLabel,
+	room,
+	date,
 }: {
 	label: string;
 	courseCode?: string;
 	total: number;
+	dateLabel?: string;
+	room?: string;
+	date?: string;
 }) {
+	const whenPhrase = dateLabel ? `on ${dateLabel}` : "today";
 	return (
 		<EmptyState
 			icon={<CircleCheckBig className="size-8" />}
@@ -348,9 +443,9 @@ function AllCheckedIn({
 			body={
 				total === 0
 					? "No students are registered yet."
-					: `All ${total} enrolled students in ${courseCode ? `${courseCode} (` : ""}Room ${label}${courseCode ? ")" : ""} have checked in today.`
+					: `All ${total} enrolled students in ${courseCode ? `${courseCode} (` : ""}Room ${label}${courseCode ? ")" : ""} have checked in ${whenPhrase}.`
 			}
-			action={<BackHomeButton />}
+			action={<BackHomeButton room={room} date={date} />}
 		/>
 	);
 }
@@ -369,10 +464,16 @@ function InvalidRoom() {
 	);
 }
 
-function BackHomeButton() {
+function BackHomeButton({ room, date }: { room?: string; date?: string } = {}) {
 	return (
 		<Button asChild variant="outline">
-			<Link to="/">
+			<Link
+				to="/"
+				search={{
+					room: room && room !== DEFAULT_ROOM ? room : undefined,
+					date,
+				}}
+			>
 				<ArrowLeft />
 				Back to room
 			</Link>
