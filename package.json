@@ -21,6 +21,8 @@
     "db:seed": "bun src/db/seed.ts"
   },
   "dependencies": {
+    "@prisma/composer": "0.28.0",
+    "@prisma/composer-prisma-cloud": "0.28.0",
     "@simplewebauthn/browser": "^14.0.0",
     "@t3-oss/env-core": "^0.13.10",
     "@tailwindcss/vite": "^4.1.18",
@@ -34,6 +36,7 @@
     "@trpc/client": "^11.11.0",
     "@trpc/server": "^11.11.0",
     "@trpc/tanstack-react-query": "^11.11.0",
+    "alchemy": "2.0.0-beta.78",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cn": "^0.5.0",
@@ -41,6 +44,7 @@
     "drizzle-kit": "^1.0.0-rc.4",
     "drizzle-orm": "^1.0.0-rc.4",
     "drizzle-seed": "^0.3.1",
+    "effect": "4.0.0-rc.115",
     "lucide-react": "^0.577.0",
     "pg": "^8.23.1",
     "radix-ui": "^1.7.0",
@@ -66,6 +70,7 @@
     "@types/react-dom": "^19.2.0",
     "@vitejs/plugin-react": "^6.0.1",
     "dotenv": "^18.0.7",
+    "prisma": "8.0.0-rc.21",
     "tsx": "^4.23.15",
     "typescript": "^6.0.2",
     "vite": "^8.0.0"
@@ -75,5 +80,16 @@
       "esbuild",
       "lightningcss"
     ]
+  },
+  "overrides": {
+    "@effect/platform-bun": "4.0.0-rc.115",
+    "@effect/platform-node": "4.0.0-rc.115",
+    "@effect/platform-node-shared": "4.0.0-rc.115",
+    "@effect/sql-d1": "4.0.0-rc.115",
+    "@effect/sql-mysql2": "4.0.0-rc.115",
+    "@effect/sql-pg": "4.0.0-rc.115",
+    "@effect/sql-sqlite-do": "4.0.0-rc.115",
+    "@effect/vitest": "4.0.0-rc.115",
+    "effect": "4.0.0-rc.115"
   }
 }
