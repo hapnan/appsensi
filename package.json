@@ -9,7 +9,7 @@
     "dev": "vite dev --port 3000",
     "generate-routes": "tsr generate",
     "build": "vite build",
-    "start": "bun run .output/server/index.mjs",
+    "start": "bun run server.ts",
     "preview": "vite preview",
     "format": "biome format",
     "lint": "biome lint",

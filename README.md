@@ -46,6 +46,16 @@ VITE_WEBAUTHN_SERVER_URL="http://localhost:8080"
 | `SERVER_URL` | Server | No | — | Optional application server base URL |
 | `VITE_WEBAUTHN_SERVER_URL` | Client | No | `http://localhost:8080` | Base URL of [`appsensi-server`](https://github.com/hapnan/appsensi-server) |
 | `VITE_APP_TITLE` | Client | No | — | Optional custom application title |
+| `PORT` | Server | No | `3000` | Production Bun server port (`server.ts`) |
+| `HOST` | Server | No | `0.0.0.0` | Production Bun server bind address (`server.ts`) |
+| `ASSET_PRELOAD_MAX_SIZE` | Server | No | `5242880` | Max file size in bytes to preload into memory (5 MB default) |
+| `ASSET_PRELOAD_INCLUDE_PATTERNS` | Server | No | — | Comma-separated glob patterns of filenames to preload (e.g. `*.js,*.css`) |
+| `ASSET_PRELOAD_EXCLUDE_PATTERNS` | Server | No | — | Comma-separated glob patterns of filenames to exclude from preloading |
+| `ASSET_PRELOAD_VERBOSE_LOGGING` | Server | No | `false` | Log detailed preloaded and on-demand static asset tables at startup |
+| `ASSET_PRELOAD_ENABLE_ETAG` | Server | No | `true` | Compute weak ETags (`W/"..."`) and handle `304 Not Modified` responses |
+| `ASSET_PRELOAD_ENABLE_GZIP` | Server | No | `true` | Pre-compress eligible preloaded static assets with Gzip |
+| `ASSET_PRELOAD_GZIP_MIN_SIZE` | Server | No | `1024` | Minimum file size in bytes required for Gzip compression |
+| `ASSET_PRELOAD_GZIP_MIME_TYPES` | Server | No | `text/,application/javascript,...` | Comma-separated MIME types/prefixes eligible for Gzip compression |
 
 ## Quick Start
 
@@ -75,6 +85,7 @@ Open `http://localhost:3000` in your browser:
 | :--- | :--- |
 | `bun --bun run dev` | Start the Vite development server on port `3000` |
 | `bun --bun run build` | Build the application for production |
+| `bun run start` | Start the Bun production server (`server.ts`) |
 | `bun --bun run preview` | Preview the production build locally |
 | `bun run generate-routes` | Regenerate TanStack Router route tree (`tsr generate`) |
 | `bun --bun run check` | Run Biome formatting and lint checks |

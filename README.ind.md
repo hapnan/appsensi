@@ -46,6 +46,16 @@ VITE_WEBAUTHN_SERVER_URL="http://localhost:8080"
 | `SERVER_URL` | Server | Tidak | — | URL dasar server aplikasi (opsional) |
 | `VITE_WEBAUTHN_SERVER_URL` | Klien | Tidak | `http://localhost:8080` | URL dasar [`appsensi-server`](https://github.com/hapnan/appsensi-server) |
 | `VITE_APP_TITLE` | Klien | Tidak | — | Judul aplikasi kustom (opsional) |
+| `PORT` | Server | Tidak | `3000` | Port server produksi Bun (`server.ts`) |
+| `HOST` | Server | Tidak | `0.0.0.0` | Alamat *bind* server produksi Bun (`server.ts`) |
+| `ASSET_PRELOAD_MAX_SIZE` | Server | Tidak | `5242880` | Ukuran berkas maksimum (dalam *byte*) yang dimuat ke memori (*default* 5 MB) |
+| `ASSET_PRELOAD_INCLUDE_PATTERNS` | Server | Tidak | — | Daftar pola *glob* nama berkas yang dipisahkan koma untuk dimuat ke memori |
+| `ASSET_PRELOAD_EXCLUDE_PATTERNS` | Server | Tidak | — | Daftar pola *glob* nama berkas yang dikecualikan dari pemuatan memori |
+| `ASSET_PRELOAD_VERBOSE_LOGGING` | Server | Tidak | `false` | Menampilkan tabel rincian aset statis saat server dimulai |
+| `ASSET_PRELOAD_ENABLE_ETAG` | Server | Tidak | `true` | Mengaktifkan pembuatan ETag dan dukungan respons `304 Not Modified` |
+| `ASSET_PRELOAD_ENABLE_GZIP` | Server | Tidak | `true` | Mengaktifkan kompresi Gzip untuk aset statis yang memenuhi syarat |
+| `ASSET_PRELOAD_GZIP_MIN_SIZE` | Server | Tidak | `1024` | Ukuran berkas minimum (dalam *byte*) untuk kompresi Gzip |
+| `ASSET_PRELOAD_GZIP_MIME_TYPES` | Server | Tidak | `text/,application/javascript,...` | Daftar tipe MIME yang memenuhi syarat untuk kompresi Gzip |
 
 ## Mulai Cepat
 
@@ -75,6 +85,7 @@ Buka `http://localhost:3000` di peramban:
 | :--- | :--- |
 | `bun --bun run dev` | Menjalankan server pengembangan Vite pada port `3000` |
 | `bun --bun run build` | Membangun aplikasi untuk lingkungan produksi |
+| `bun run start` | Menjalankan server produksi Bun (`server.ts`) |
 | `bun --bun run preview` | Menjalankan pratinjau hasil *build* produksi secara lokal |
 | `bun run generate-routes` | Memperbarui pohon rute TanStack Router (`tsr generate`) |
 | `bun --bun run check` | Menjalankan pemeriksaan pemformatan dan *linting* Biome |
