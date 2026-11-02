@@ -18,6 +18,17 @@ Campus classroom attendance web application powered by WebAuthn passkeys, room &
 - **Authentication**: [`@simplewebauthn/browser`](https://simplewebauthn.dev) + [`appsensi-server`](https://github.com/hapnan/appsensi-server) (`go-webauthn`)
 - **UI & Tooling**: Tailwind CSS v4, Shadcn UI / Radix UI, Lucide Icons, [Bun](https://bun.sh), [Biome](https://biomejs.dev)
 
+## Documentation
+
+Comprehensive project documentation, sequence diagrams, and architecture specifications are available in the [`docs/`](./docs) folder:
+
+- **[Documentation Hub](./docs/README.md)** — Complete index of all technical documentation.
+- **[System Architecture Guide](./docs/ARCHITECTURE.md)** — Runtime design, Bun asset preloading, performance optimizations, and security guarantees.
+- **[Entity Relationship Diagram (ERD)](./docs/ERD.md)** ([Visual SVG](./docs/ERD.svg)) — Complete data dictionary for all 11 database tables, UUIDv7 indexing, and foreign key cascade rules.
+- **[Attendance Flow Diagram](./docs/Flow_Diagram_Attendance.md)** ([Visual SVG](./docs/Flow_Diagram_Attendance.svg)) — Step-by-step passkey verification and attendance recording ceremony.
+- **[Registration Flow Diagram](./docs/Flow_Diagram_Register.md)** ([Visual SVG](./docs/Flow_Diagram_Register.svg)) — Student onboarding and WebAuthn credential creation ceremony.
+- **[API Reference & Contracts](./docs/API.md)** — Complete specifications for tRPC procedures and companion WebAuthn endpoints.
+
 ## Prerequisites
 
 - **[Bun](https://bun.sh)** `>= 1.0`

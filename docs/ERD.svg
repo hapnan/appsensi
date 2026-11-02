@@ -1,0 +1,549 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1480 1160" width="1480" height="1160" style="--bg:#0F0F11;background:var(--bg)">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap');
+      text { font-family: 'Inter', system-ui, -apple-system, sans-serif; }
+    </style>
+    <filter id="table-shadow" x="-5%" y="-3%" width="110%" height="108%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#000000" flood-opacity="0.45" />
+    </filter>
+    <marker id="crows-foot" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <polyline points="0 1, 8 5, 0 9" fill="none" stroke="#71717A" stroke-width="1.5" />
+      <line x1="8" y1="1" x2="8" y2="9" stroke="#71717A" stroke-width="1.5" />
+    </marker>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <circle cx="15" cy="15" r="0.8" fill="#27272A" />
+    </pattern>
+  </defs>
+
+  <!-- Background grid -->
+  <rect width="100%" height="100%" fill="#0F0F11" />
+  <rect width="100%" height="100%" fill="url(#grid)" />
+
+  <!-- Top Banner / Title -->
+  <g transform="translate(40, 30)">
+    <rect x="0" y="0" width="1400" height="48" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1" />
+    <circle cx="20" cy="24" r="6" fill="#10B981" />
+    <text x="36" y="29" font-size="16" font-weight="700" fill="#F4F4F5">Appsensi — Database Entity Relationship Diagram (ERD)</text>
+    <text x="540" y="28" font-size="12" font-weight="400" fill="#71717A">PostgreSQL 18+ · Drizzle ORM · WebAuthn Passkeys · 11 Tables</text>
+
+    <!-- Legend -->
+    <g transform="translate(1020, 16)">
+      <rect x="0" y="0" width="22" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+      <text x="11" y="11" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+      <text x="28" y="11" font-size="10.5" fill="#A1A1AA">Primary Key</text>
+
+      <rect x="110" y="0" width="22" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+      <text x="121" y="11" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+      <text x="138" y="11" font-size="10.5" fill="#A1A1AA">Foreign Key</text>
+
+      <rect x="220" y="0" width="22" height="15" rx="3" fill="#06B6D422" stroke="#06B6D4" stroke-width="0.5" />
+      <text x="231" y="11" font-size="8.5" font-weight="700" text-anchor="middle" fill="#38BDF8">UK</text>
+      <text x="248" y="11" font-size="10.5" fill="#A1A1AA">Unique</text>
+    </g>
+  </g>
+
+  <!-- Relationships Lines -->
+  <g id="relationships">
+    
+  <path d="M 185 292 L 185 350" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="171" y="313" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="185" y="324" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 330 148 L 390 142" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="346" y="137" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="360" y="148" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 540 268 L 540 320" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="526" y="286" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="540" y="297" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 540 536 L 540 570" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="526" y="545" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="540" y="556" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 330 440 L 360 440 L 360 640 L 390 640" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="346" y="532" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="360" y="543" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 1060 157.6 L 1120 150.4" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="1076" y="146" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="1090" y="157" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 1060 220 L 1090 220 L 1090 370 L 1120 370" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="1076" y="287" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="1090" y="298" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 905 292 L 905 340" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="891" y="308" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="905" y="319" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:0..1</text>
+  <path d="M 905 556 L 905 580" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="891" y="560" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="905" y="571" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 690 694.8 L 750 647.2" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="706" y="663" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="720" y="674" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 600 845 L 600 880 L 642 880 L 642 910" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="607" y="872" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="621" y="883" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 750 490 L 715 490 L 715 870 L 808 870 L 808 910" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="701" y="672" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="715" y="683" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  <path d="M 185 535 L 185 990 L 560 990" fill="none" stroke="#52525B" stroke-width="1.5" stroke-dasharray="none" marker-end="url(#crows-foot)" />
+    <rect x="171" y="754.5" width="28" height="15" rx="3" fill="#18181B" stroke="#3F3F46" stroke-width="0.75" />
+    <text x="185" y="765.5" font-size="8.5" font-weight="600" text-anchor="middle" fill="#A1A1AA" font-family="'JetBrains Mono', monospace">1:N</text>
+  </g>
+
+  <!-- Tables -->
+  <g id="tables">
+    
+  <!-- Table: buildings -->
+  <g id="table-buildings" class="table-group">
+    <!-- Card Background -->
+    <rect x="40" y="100" width="290" height="192" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 40 108 Q 40 100 48 100 L 322 100 Q 330 100 330 108 L 330 138 L 40 138 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="40" y="100" width="4" height="38" rx="2" fill="#3B82F6" />
+    <!-- Table Name -->
+    <text x="54" y="124" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">buildings</text>
+    <!-- Domain Badge -->
+    <rect x="238" y="111" width="80" height="18" rx="4" fill="#1E3A8A33" stroke="#60A5FA" stroke-width="0.75" />
+    <text x="278" y="123" font-size="9" font-weight="600" text-anchor="middle" fill="#60A5FA">CAMPUS</text>
+    <line x1="40" y1="138" x2="330" y2="138" stroke="#27272A" stroke-width="1" />
+    <rect x="41" y="140" width="288" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="50" y="144" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="62" y="155" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="80" y="155" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="318" y="155" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="50" y="168" width="24" height="15" rx="3" fill="#06B6D422" stroke="#06B6D4" stroke-width="0.5" />
+    <text x="62" y="179" font-size="8.5" font-weight="700" text-anchor="middle" fill="#38BDF8">UK</text>
+  <text x="80" y="179" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">code</text>
+  <text x="318" y="179" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="41" y="188" width="288" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="80" y="203" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">name</text>
+  <text x="318" y="203" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <text x="80" y="227" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">purpose</text>
+  <text x="318" y="227" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="41" y="236" width="288" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="80" y="251" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">has_classes</text>
+  <text x="318" y="251" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">boolean</text>
+  <text x="80" y="275" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">total_floors</text>
+  <text x="318" y="275" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">integer</text>
+  </g>
+
+  <!-- Table: rooms -->
+  <g id="table-rooms" class="table-group">
+    <!-- Card Background -->
+    <rect x="40" y="350" width="290" height="216" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 40 358 Q 40 350 48 350 L 322 350 Q 330 350 330 358 L 330 388 L 40 388 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="40" y="350" width="4" height="38" rx="2" fill="#3B82F6" />
+    <!-- Table Name -->
+    <text x="54" y="374" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">rooms</text>
+    <!-- Domain Badge -->
+    <rect x="238" y="361" width="80" height="18" rx="4" fill="#1E3A8A33" stroke="#60A5FA" stroke-width="0.75" />
+    <text x="278" y="373" font-size="9" font-weight="600" text-anchor="middle" fill="#60A5FA">CAMPUS</text>
+    <line x1="40" y1="388" x2="330" y2="388" stroke="#27272A" stroke-width="1" />
+    <rect x="41" y="390" width="288" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="50" y="394" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="62" y="405" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="80" y="405" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="318" y="405" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="50" y="418" width="24" height="15" rx="3" fill="#06B6D422" stroke="#06B6D4" stroke-width="0.5" />
+    <text x="62" y="429" font-size="8.5" font-weight="700" text-anchor="middle" fill="#38BDF8">UK</text>
+  <text x="80" y="429" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">code</text>
+  <text x="318" y="429" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="41" y="438" width="288" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="50" y="442" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="62" y="453" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="80" y="453" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">building_id</text>
+  <text x="318" y="453" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <text x="80" y="477" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">floor</text>
+  <text x="318" y="477" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">integer</text>
+  <rect x="41" y="486" width="288" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="80" y="501" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">room_number</text>
+  <text x="318" y="501" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <text x="80" y="525" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">name</text>
+  <text x="318" y="525" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text?</text>
+  <rect x="41" y="534" width="288" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="80" y="549" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">capacity</text>
+  <text x="318" y="549" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">integer?</text>
+  </g>
+
+  <!-- Table: faculties -->
+  <g id="table-faculties" class="table-group">
+    <!-- Card Background -->
+    <rect x="390" y="100" width="300" height="168" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 390 108 Q 390 100 398 100 L 682 100 Q 690 100 690 108 L 690 138 L 390 138 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="390" y="100" width="4" height="38" rx="2" fill="#8B5CF6" />
+    <!-- Table Name -->
+    <text x="404" y="124" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">faculties</text>
+    <!-- Domain Badge -->
+    <rect x="598" y="111" width="80" height="18" rx="4" fill="#5B21B633" stroke="#A78BFA" stroke-width="0.75" />
+    <text x="638" y="123" font-size="9" font-weight="600" text-anchor="middle" fill="#A78BFA">ACADEMIC</text>
+    <line x1="390" y1="138" x2="690" y2="138" stroke="#27272A" stroke-width="1" />
+    <rect x="391" y="140" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="400" y="144" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="412" y="155" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="430" y="155" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="678" y="155" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="400" y="168" width="24" height="15" rx="3" fill="#06B6D422" stroke="#06B6D4" stroke-width="0.5" />
+    <text x="412" y="179" font-size="8.5" font-weight="700" text-anchor="middle" fill="#38BDF8">UK</text>
+  <text x="430" y="179" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">code</text>
+  <text x="678" y="179" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="391" y="188" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="430" y="203" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">name</text>
+  <text x="678" y="203" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="400" y="216" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="412" y="227" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="430" y="227" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">building_id</text>
+  <text x="678" y="227" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid?</text>
+  <rect x="391" y="236" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="430" y="251" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">created_at</text>
+  <text x="678" y="251" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz</text>
+  </g>
+
+  <!-- Table: courses -->
+  <g id="table-courses" class="table-group">
+    <!-- Card Background -->
+    <rect x="390" y="320" width="300" height="216" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 390 328 Q 390 320 398 320 L 682 320 Q 690 320 690 328 L 690 358 L 390 358 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="390" y="320" width="4" height="38" rx="2" fill="#8B5CF6" />
+    <!-- Table Name -->
+    <text x="404" y="344" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">courses</text>
+    <!-- Domain Badge -->
+    <rect x="598" y="331" width="80" height="18" rx="4" fill="#5B21B633" stroke="#A78BFA" stroke-width="0.75" />
+    <text x="638" y="343" font-size="9" font-weight="600" text-anchor="middle" fill="#A78BFA">ACADEMIC</text>
+    <line x1="390" y1="358" x2="690" y2="358" stroke="#27272A" stroke-width="1" />
+    <rect x="391" y="360" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="400" y="364" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="412" y="375" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="430" y="375" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="678" y="375" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="400" y="388" width="24" height="15" rx="3" fill="#06B6D422" stroke="#06B6D4" stroke-width="0.5" />
+    <text x="412" y="399" font-size="8.5" font-weight="700" text-anchor="middle" fill="#38BDF8">UK</text>
+  <text x="430" y="399" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">code</text>
+  <text x="678" y="399" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="391" y="408" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="430" y="423" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">name</text>
+  <text x="678" y="423" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <text x="430" y="447" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">credits</text>
+  <text x="678" y="447" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">integer</text>
+  <rect x="391" y="456" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="430" y="471" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">description</text>
+  <text x="678" y="471" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text?</text>
+  <rect x="400" y="484" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="412" y="495" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="430" y="495" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">faculty_id</text>
+  <text x="678" y="495" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid?</text>
+  <rect x="391" y="504" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="430" y="519" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">created_at</text>
+  <text x="678" y="519" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz</text>
+  </g>
+
+  <!-- Table: class_schedules -->
+  <g id="table-class_schedules" class="table-group">
+    <!-- Card Background -->
+    <rect x="390" y="570" width="300" height="312" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 390 578 Q 390 570 398 570 L 682 570 Q 690 570 690 578 L 690 608 L 390 608 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="390" y="570" width="4" height="38" rx="2" fill="#8B5CF6" />
+    <!-- Table Name -->
+    <text x="404" y="594" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">class_schedules</text>
+    <!-- Domain Badge -->
+    <rect x="598" y="581" width="80" height="18" rx="4" fill="#5B21B633" stroke="#A78BFA" stroke-width="0.75" />
+    <text x="638" y="593" font-size="9" font-weight="600" text-anchor="middle" fill="#A78BFA">ACADEMIC</text>
+    <line x1="390" y1="608" x2="690" y2="608" stroke="#27272A" stroke-width="1" />
+    <rect x="391" y="610" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="400" y="614" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="412" y="625" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="430" y="625" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="678" y="625" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="400" y="638" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="412" y="649" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="430" y="649" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">course_id</text>
+  <text x="678" y="649" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="391" y="658" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="400" y="662" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="412" y="673" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="430" y="673" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">room_id</text>
+  <text x="678" y="673" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <text x="430" y="697" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">section</text>
+  <text x="678" y="697" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="391" y="706" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="430" y="721" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">instructor</text>
+  <text x="678" y="721" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text?</text>
+  <text x="430" y="745" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">day_of_week</text>
+  <text x="678" y="745" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text?</text>
+  <rect x="391" y="754" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="430" y="769" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">start_time</text>
+  <text x="678" y="769" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text?</text>
+  <text x="430" y="793" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">end_time</text>
+  <text x="678" y="793" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text?</text>
+  <rect x="391" y="802" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="430" y="817" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">academic_term</text>
+  <text x="678" y="817" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text?</text>
+  <text x="430" y="841" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">max_capacity</text>
+  <text x="678" y="841" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">integer?</text>
+  <rect x="391" y="850" width="298" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="430" y="865" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">created_at</text>
+  <text x="678" y="865" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz</text>
+  </g>
+
+  <!-- Table: users -->
+  <g id="table-users" class="table-group">
+    <!-- Card Background -->
+    <rect x="750" y="100" width="310" height="192" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 750 108 Q 750 100 758 100 L 1052 100 Q 1060 100 1060 108 L 1060 138 L 750 138 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="750" y="100" width="4" height="38" rx="2" fill="#10B981" />
+    <!-- Table Name -->
+    <text x="764" y="124" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">users</text>
+    <!-- Domain Badge -->
+    <rect x="968" y="111" width="80" height="18" rx="4" fill="#065F4633" stroke="#34D399" stroke-width="0.75" />
+    <text x="1008" y="123" font-size="9" font-weight="600" text-anchor="middle" fill="#34D399">AUTH & IDENTITY</text>
+    <line x1="750" y1="138" x2="1060" y2="138" stroke="#27272A" stroke-width="1" />
+    <rect x="751" y="140" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="760" y="144" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="772" y="155" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="790" y="155" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="1048" y="155" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="760" y="168" width="24" height="15" rx="3" fill="#06B6D422" stroke="#06B6D4" stroke-width="0.5" />
+    <text x="772" y="179" font-size="8.5" font-weight="700" text-anchor="middle" fill="#38BDF8">UK</text>
+  <text x="790" y="179" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">email</text>
+  <text x="1048" y="179" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="751" y="188" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="760" y="192" width="24" height="15" rx="3" fill="#06B6D422" stroke="#06B6D4" stroke-width="0.5" />
+    <text x="772" y="203" font-size="8.5" font-weight="700" text-anchor="middle" fill="#38BDF8">UK</text>
+  <text x="790" y="203" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">username</text>
+  <text x="1048" y="203" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <text x="790" y="227" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">display_name</text>
+  <text x="1048" y="227" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text?</text>
+  <rect x="751" y="236" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="790" y="251" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">created_at</text>
+  <text x="1048" y="251" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz</text>
+  <text x="790" y="275" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">updated_at</text>
+  <text x="1048" y="275" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz?</text>
+  </g>
+
+  <!-- Table: students -->
+  <g id="table-students" class="table-group">
+    <!-- Card Background -->
+    <rect x="750" y="340" width="310" height="216" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 750 348 Q 750 340 758 340 L 1052 340 Q 1060 340 1060 348 L 1060 378 L 750 378 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="750" y="340" width="4" height="38" rx="2" fill="#F59E0B" />
+    <!-- Table Name -->
+    <text x="764" y="364" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">students</text>
+    <!-- Domain Badge -->
+    <rect x="968" y="351" width="80" height="18" rx="4" fill="#78350F33" stroke="#FBBF24" stroke-width="0.75" />
+    <text x="1008" y="363" font-size="9" font-weight="600" text-anchor="middle" fill="#FBBF24">STUDENTS</text>
+    <line x1="750" y1="378" x2="1060" y2="378" stroke="#27272A" stroke-width="1" />
+    <rect x="751" y="380" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="760" y="384" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="772" y="395" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="790" y="395" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="1048" y="395" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="760" y="408" width="24" height="15" rx="3" fill="#06B6D422" stroke="#06B6D4" stroke-width="0.5" />
+    <text x="772" y="419" font-size="8.5" font-weight="700" text-anchor="middle" fill="#38BDF8">UK</text>
+  <text x="790" y="419" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">student_id</text>
+  <text x="1048" y="419" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="751" y="428" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="790" y="443" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">name</text>
+  <text x="1048" y="443" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <text x="790" y="467" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">department</text>
+  <text x="1048" y="467" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text?</text>
+  <rect x="751" y="476" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="790" y="491" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">photo_url</text>
+  <text x="1048" y="491" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text?</text>
+  <rect x="760" y="504" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="772" y="515" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="790" y="515" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">user_id</text>
+  <text x="1048" y="515" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid?</text>
+  <rect x="751" y="524" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="790" y="539" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">created_at</text>
+  <text x="1048" y="539" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz</text>
+  </g>
+
+  <!-- Table: student_schedules -->
+  <g id="table-student_schedules" class="table-group">
+    <!-- Card Background -->
+    <rect x="750" y="580" width="310" height="168" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 750 588 Q 750 580 758 580 L 1052 580 Q 1060 580 1060 588 L 1060 618 L 750 618 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="750" y="580" width="4" height="38" rx="2" fill="#EC4899" />
+    <!-- Table Name -->
+    <text x="764" y="604" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">student_schedules</text>
+    <!-- Domain Badge -->
+    <rect x="968" y="591" width="80" height="18" rx="4" fill="#83184333" stroke="#F472B6" stroke-width="0.75" />
+    <text x="1008" y="603" font-size="9" font-weight="600" text-anchor="middle" fill="#F472B6">ENROLLMENT</text>
+    <line x1="750" y1="618" x2="1060" y2="618" stroke="#27272A" stroke-width="1" />
+    <rect x="751" y="620" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="760" y="624" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="772" y="635" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="790" y="635" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="1048" y="635" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="760" y="648" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="772" y="659" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="790" y="659" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">student_id</text>
+  <text x="1048" y="659" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="751" y="668" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="760" y="672" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="772" y="683" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="790" y="683" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">class_schedule_id</text>
+  <text x="1048" y="683" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <text x="790" y="707" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">status</text>
+  <text x="1048" y="707" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="751" y="716" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="790" y="731" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">enrolled_at</text>
+  <text x="1048" y="731" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz</text>
+  </g>
+
+  <!-- Table: attendance -->
+  <g id="table-attendance" class="table-group">
+    <!-- Card Background -->
+    <rect x="560" y="910" width="330" height="192" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 560 918 Q 560 910 568 910 L 882 910 Q 890 910 890 918 L 890 948 L 560 948 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="560" y="910" width="4" height="38" rx="2" fill="#06B6D4" />
+    <!-- Table Name -->
+    <text x="574" y="934" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">attendance</text>
+    <!-- Domain Badge -->
+    <rect x="798" y="921" width="80" height="18" rx="4" fill="#164E6333" stroke="#22D3EE" stroke-width="0.75" />
+    <text x="838" y="933" font-size="9" font-weight="600" text-anchor="middle" fill="#22D3EE">ATTENDANCE</text>
+    <line x1="560" y1="948" x2="890" y2="948" stroke="#27272A" stroke-width="1" />
+    <rect x="561" y="950" width="328" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="570" y="954" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="582" y="965" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="600" y="965" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="878" y="965" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="570" y="978" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="582" y="989" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="600" y="989" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">student_id</text>
+  <text x="878" y="989" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="561" y="998" width="328" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="570" y="1002" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="582" y="1013" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="600" y="1013" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">room_id</text>
+  <text x="878" y="1013" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="570" y="1026" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="582" y="1037" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="600" y="1037" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">class_schedule_id</text>
+  <text x="878" y="1037" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="561" y="1046" width="328" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="600" y="1061" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">session_date</text>
+  <text x="878" y="1061" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">date</text>
+  <text x="600" y="1085" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">checked_in_at</text>
+  <text x="878" y="1085" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz</text>
+  </g>
+
+  <!-- Table: webauthn_users -->
+  <g id="table-webauthn_users" class="table-group">
+    <!-- Card Background -->
+    <rect x="1120" y="100" width="310" height="168" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 1120 108 Q 1120 100 1128 100 L 1422 100 Q 1430 100 1430 108 L 1430 138 L 1120 138 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="1120" y="100" width="4" height="38" rx="2" fill="#6366F1" />
+    <!-- Table Name -->
+    <text x="1134" y="124" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">webauthn_users</text>
+    <!-- Domain Badge -->
+    <rect x="1338" y="111" width="80" height="18" rx="4" fill="#3730A333" stroke="#818CF8" stroke-width="0.75" />
+    <text x="1378" y="123" font-size="9" font-weight="600" text-anchor="middle" fill="#818CF8">WEBAUTHN</text>
+    <line x1="1120" y1="138" x2="1430" y2="138" stroke="#27272A" stroke-width="1" />
+    <rect x="1121" y="140" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="1130" y="144" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="1142" y="155" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="1160" y="155" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="1418" y="155" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="1130" y="168" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="1142" y="179" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="1160" y="179" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">user_id</text>
+  <text x="1418" y="179" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="1121" y="188" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="1160" y="203" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">rp_id</text>
+  <text x="1418" y="203" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <text x="1160" y="227" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">handle</text>
+  <text x="1418" y="227" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">bytea</text>
+  <rect x="1121" y="236" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="1160" y="251" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">created_at</text>
+  <text x="1418" y="251" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz</text>
+  </g>
+
+  <!-- Table: credentials -->
+  <g id="table-credentials" class="table-group">
+    <!-- Card Background -->
+    <rect x="1120" y="310" width="310" height="456" rx="8" fill="#18181B" stroke="#27272A" stroke-width="1.5" filter="url(#table-shadow)" />
+    <!-- Header background -->
+    <path d="M 1120 318 Q 1120 310 1128 310 L 1422 310 Q 1430 310 1430 318 L 1430 348 L 1120 348 Z" fill="#202024" />
+    <!-- Domain accent bar -->
+    <rect x="1120" y="310" width="4" height="38" rx="2" fill="#14B8A6" />
+    <!-- Table Name -->
+    <text x="1134" y="334" font-size="14" font-weight="700" fill="#F4F4F5" font-family="'JetBrains Mono', 'Fira Code', monospace">credentials</text>
+    <!-- Domain Badge -->
+    <rect x="1338" y="321" width="80" height="18" rx="4" fill="#134E4A33" stroke="#2DD4BF" stroke-width="0.75" />
+    <text x="1378" y="333" font-size="9" font-weight="600" text-anchor="middle" fill="#2DD4BF">PASSKEYS</text>
+    <line x1="1120" y1="348" x2="1430" y2="348" stroke="#27272A" stroke-width="1" />
+    <rect x="1121" y="350" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="1130" y="354" width="24" height="15" rx="3" fill="#22C55E22" stroke="#22C55E" stroke-width="0.5" />
+    <text x="1142" y="365" font-size="8.5" font-weight="700" text-anchor="middle" fill="#4ADE80">PK</text>
+  <text x="1160" y="365" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">id</text>
+  <text x="1418" y="365" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="1130" y="378" width="24" height="15" rx="3" fill="#F59E0B22" stroke="#F59E0B" stroke-width="0.5" />
+    <text x="1142" y="389" font-size="8.5" font-weight="700" text-anchor="middle" fill="#FBBF24">FK</text>
+  <text x="1160" y="389" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">user_id</text>
+  <text x="1418" y="389" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">uuid</text>
+  <rect x="1121" y="398" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <rect x="1130" y="402" width="24" height="15" rx="3" fill="#06B6D422" stroke="#06B6D4" stroke-width="0.5" />
+    <text x="1142" y="413" font-size="8.5" font-weight="700" text-anchor="middle" fill="#38BDF8">UK</text>
+  <text x="1160" y="413" font-size="11.5" font-weight="600" fill="#FAFAFA" font-family="'JetBrains Mono', monospace">credential_id</text>
+  <text x="1418" y="413" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">bytea</text>
+  <text x="1160" y="437" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">aaguid</text>
+  <text x="1418" y="437" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">bytea</text>
+  <rect x="1121" y="446" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="1160" y="461" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">public_key</text>
+  <text x="1418" y="461" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">bytea</text>
+  <text x="1160" y="485" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">attestation_type</text>
+  <text x="1418" y="485" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="1121" y="494" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="1160" y="509" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">attestation_format</text>
+  <text x="1418" y="509" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <text x="1160" y="533" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">transport</text>
+  <text x="1418" y="533" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <rect x="1121" y="542" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="1160" y="557" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">sign_count</text>
+  <text x="1418" y="557" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">bigint</text>
+  <text x="1160" y="581" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">clone_warning</text>
+  <text x="1418" y="581" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">boolean</text>
+  <rect x="1121" y="590" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="1160" y="605" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">attachment</text>
+  <text x="1418" y="605" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">text</text>
+  <text x="1160" y="629" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">presence</text>
+  <text x="1418" y="629" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">boolean</text>
+  <rect x="1121" y="638" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="1160" y="653" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">verified</text>
+  <text x="1418" y="653" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">boolean</text>
+  <text x="1160" y="677" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">backup_eligible</text>
+  <text x="1418" y="677" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">boolean</text>
+  <rect x="1121" y="686" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="1160" y="701" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">backup_state</text>
+  <text x="1418" y="701" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">boolean</text>
+  <text x="1160" y="725" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">created_at</text>
+  <text x="1418" y="725" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz</text>
+  <rect x="1121" y="734" width="308" height="24" fill="#1E1E22" opacity="0.4" />
+  <text x="1160" y="749" font-size="11.5" font-weight="400" fill="#D4D4D8" font-family="'JetBrains Mono', monospace">last_used_at</text>
+  <text x="1418" y="749" font-size="10.5" font-weight="400" text-anchor="end" fill="#71717A" font-family="'JetBrains Mono', monospace">timestamptz?</text>
+  </g>
+
+  </g>
+
+  <!-- Bottom Footer Note -->
+  <g transform="translate(40, 1130)">
+    <text x="0" y="0" font-size="11" fill="#52525B" font-family="'JetBrains Mono', monospace">Generated from src/db/schema.ts &amp; src/db/relations.ts · Companion auth backend: appsensi-server</text>
+  </g>
+</svg>

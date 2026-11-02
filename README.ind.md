@@ -18,6 +18,17 @@ Aplikasi web presensi kelas kampus berbasis *passkey* WebAuthn, penjadwalan ruan
 - **Autentikasi**: [`@simplewebauthn/browser`](https://simplewebauthn.dev) + [`appsensi-server`](https://github.com/hapnan/appsensi-server) (`go-webauthn`)
 - **UI & Perkakas**: Tailwind CSS v4, Shadcn UI / Radix UI, Lucide Icons, [Bun](https://bun.sh), [Biome](https://biomejs.dev)
 
+## Dokumentasi
+
+Dokumentasi teknis lengkap, diagram alur, dan spesifikasi arsitektur tersedia di direktori [`docs/`](./docs):
+
+- **[Pusat Dokumentasi](./docs/README.md)** — Indeks lengkap seluruh dokumentasi teknis.
+- **[Panduan Arsitektur Sistem](./docs/ARCHITECTURE.md)** — Desain runtime, *asset preloading* di Bun, optimasi performa, dan model keamanan.
+- **[Entity Relationship Diagram (ERD)](./docs/ERD.md)** ([Visual SVG](./docs/ERD.svg)) — Kamus data lengkap untuk 11 tabel basis data, pengindeksan UUIDv7, dan aturan relasi cascade.
+- **[Diagram Alur Presensi](./docs/Flow_Diagram_Attendance.md)** ([Visual SVG](./docs/Flow_Diagram_Attendance.svg)) — Rangkaian lengkap verifikasi *passkey* dan pencatatan presensi kelas.
+- **[Diagram Alur Pendaftaran](./docs/Flow_Diagram_Register.md)** ([Visual SVG](./docs/Flow_Diagram_Register.svg)) — Rangkaian lengkap pendaftaran mahasiswa dan pembuatan kredensial WebAuthn.
+- **[Referensi API & Kontrak](./docs/API.md)** — Spesifikasi lengkap seluruh prosedur tRPC dan endpoint pendamping WebAuthn.
+
 ## Prasyarat
 
 - **[Bun](https://bun.sh)** `>= 1.0`
