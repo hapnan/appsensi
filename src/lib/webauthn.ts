@@ -6,10 +6,9 @@ export function getWebAuthnServerUrl() {
 		typeof process !== "undefined"
 			? process.env?.VITE_WEBAUTHN_SERVER_URL
 			: undefined;
+	const viteUrl: string | undefined = import.meta.env.VITE_WEBAUTHN_SERVER_URL;
 	const raw =
-		processUrl?.trim() ||
-		import.meta.env?.VITE_WEBAUTHN_SERVER_URL?.trim() ||
-		DEFAULT_WEBAUTHN_SERVER_URL;
+		processUrl?.trim() || viteUrl?.trim() || DEFAULT_WEBAUTHN_SERVER_URL;
 	return raw.replace(/\/+$/, "");
 }
 
