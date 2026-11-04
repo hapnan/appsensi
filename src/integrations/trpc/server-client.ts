@@ -81,6 +81,7 @@ export interface FetchAppsensiServerOptions<TSchema extends z.ZodType> {
 	body?: Record<string, unknown>;
 	schema: TSchema;
 	fallbackError: string;
+	signal?: AbortSignal;
 }
 
 /**
@@ -95,6 +96,7 @@ export async function fetchAppsensiServer<TSchema extends z.ZodType>({
 	body,
 	schema,
 	fallbackError,
+	signal,
 }: FetchAppsensiServerOptions<TSchema>): Promise<z.output<TSchema>> {
 	const baseUrl = getWebAuthnServerUrl();
 	const url = new URL(`${baseUrl}${path}`);
@@ -123,8 +125,12 @@ export async function fetchAppsensiServer<TSchema extends z.ZodType>({
 			method,
 			headers,
 			body: serializedBody,
+			signal,
 		});
 	} catch (error) {
+		if (signal?.aborted) {
+			throw error;
+		}
 		throw new TRPCError({
 			code: "INTERNAL_SERVER_ERROR",
 			message: `Cannot reach appsensi-server at ${baseUrl}. Ensure the server is running.`,
