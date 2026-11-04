@@ -13,8 +13,6 @@ projects:
             startCommand: bun run start
             maxShutdownDelaySeconds: 120
             domain: hapnanarsad.id
-            preDeployCommand: bun run db:push
-            initialDeployHook: ./seed.sh
             envVars:
               - key: HOST
                 value: 0.0.0.0

@@ -54,7 +54,7 @@ sequenceDiagram
 | Actor | Label in Diagram | Description & Responsibilities |
 | :--- | :--- | :--- |
 | **Person** | `User (Person)` | TanStack Start + React 19 frontend (`/attendance/$roomId`). Manages UI state, modal dialogs, and triggers the WebAuthn ceremony. |
-| **Application Server** | `appsensi (tRPC Wrapper)` | Type-safe tRPC v11 + Zod + SuperJSON BFF wrapper forwarding attendance queries/mutations to `appsensi-server`. |
+| **tRPC Wrapper** | `appsensi (tRPC Wrapper)` | Browser-local tRPC v11 + Zod + SuperJSON wrapper (`unstable_localLink`) forwarding attendance queries/mutations from the browser to `appsensi-server`. |
 | **Backend & Auth Server** | `appsensi-server (:8080)` | Go + Gin + GORM + `go-webauthn` backend. Handles WebAuthn ceremonies (`/login/*`) and PostgreSQL attendance/roster endpoints (`/attendance/*`). |
 | **Client Authenticator** | `WebAuthn Authenticator` | Hardware security key, Touch ID, Face ID, Windows Hello, or platform passkey provider running via `@simplewebauthn/browser`. |
 

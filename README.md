@@ -13,7 +13,7 @@ Campus classroom attendance web application powered by WebAuthn passkeys, room &
 ## Tech Stack
 
 - **Framework**: [TanStack Start](https://tanstack.com/start), [TanStack Router](https://tanstack.com/router), [TanStack Query](https://tanstack.com/query), React 19, Vite 8
-- **API & Validation**: [tRPC v11](https://trpc.io) (type-safe BFF wrapper over `appsensi-server`), SuperJSON, Zod v4, T3 Env (`@t3-oss/env-core`)
+- **API & Validation**: [tRPC v11](https://trpc.io) (browser-direct `unstable_localLink` type-safe wrapper over `appsensi-server`), SuperJSON, Zod v4, T3 Env (`@t3-oss/env-core`)
 - **Database Schema & Seeding**: PostgreSQL, [Drizzle ORM](https://orm.drizzle.team) & Drizzle Kit
 - **Backend & Authentication**: [`@simplewebauthn/browser`](https://simplewebauthn.dev) + [`appsensi-server`](https://github.com/hapnan/appsensi-server) (Go, Gin, GORM, `go-webauthn`)
 - **UI & Tooling**: Tailwind CSS v4, Shadcn UI / Radix UI, Lucide Icons, [Bun](https://bun.sh), [Biome](https://biomejs.dev)
@@ -33,11 +33,11 @@ Comprehensive project documentation, sequence diagrams, and architecture specifi
 
 - **[Bun](https://bun.sh)** `>= 1.0`
 - **PostgreSQL 18+** (uses native `uuidv7()` on `credentials.id`)
-- **[`appsensi-server`](https://github.com/hapnan/appsensi-server)** — Backend Go (`Gin` + `GORM` + `go-webauthn`) service running by default on `http://localhost:8080` with CORS enabled for `http://localhost:3000`:
+- **[`appsensi-server`](https://github.com/hapnan/appsensi-server)** — Backend Go (`Gin` + `GORM` + `go-webauthn`) service running by default on `http://localhost:8080` with CORS enabled for `http://localhost:3000` (set `ALLOWED_ORIGINS="http://localhost:3000,http://localhost:4173"` when running `bun --bun run preview` on port `4173`):
   - **WebAuthn ceremony endpoints (called directly from the browser)**:
     - `POST /register/begin` & `POST /register/finish` — Passkey registration ceremony (`{ email, username }`, where `username` matches `students.student_id`, e.g. `STU-FCS-001`)
     - `POST /login/begin` & `POST /login/finish` — Passkey verification ceremony (`{ username }`) before recording attendance via `trpc.attendance.checkIn`
-  - **Attendance & registration REST endpoints (wrapped by tRPC for end-to-end type safety)**:
+  - **Attendance & registration REST endpoints (called from the browser through the local tRPC + Zod wrapper)**:
     - `GET /attendance/demo-catalog`, `GET /attendance/roster`, `POST /attendance/check-in`
     - `GET /registration/list`, `POST /registration/link-student`, `POST /registration/cleanup-incomplete`
 
@@ -53,7 +53,7 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/appsensi"
 
 | Variable | Scope | Required | Default | Description |
 | :--- | :--- | :---: | :--- | :--- |
-| `VITE_WEBAUTHN_SERVER_URL` | Client & Server | No | `http://localhost:8080` | Base URL of [`appsensi-server`](https://github.com/hapnan/appsensi-server) used by browser WebAuthn ceremonies and server-side tRPC procedures |
+| `VITE_WEBAUTHN_SERVER_URL` | Client | No | `http://localhost:8080` | Base URL of [`appsensi-server`](https://github.com/hapnan/appsensi-server) used by browser WebAuthn ceremonies and local tRPC procedures |
 | `DATABASE_URL` | CLI / DB Tools | For `db:*` | — | PostgreSQL connection URL used by Drizzle schema migration & seed scripts (`db:push`, `db:migrate`, `db:seed`) |
 | `SERVER_URL` | Server | No | — | Optional application server base URL |
 | `VITE_APP_TITLE` | Client | No | — | Optional custom application title |

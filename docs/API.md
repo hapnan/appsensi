@@ -1,7 +1,7 @@
 # API Reference & Contracts — Appsensi
 
 Appsensi uses a layered API architecture consisting of:
-1. **tRPC v11 Wrapper API** (`/api/trpc/*`) — End-to-end type-safe RPC wrapper (Zod input/output validation + SuperJSON `Date` serialization) that delegates all attendance and registration procedures to `appsensi-server`.
+1. **tRPC v11 Local Wrapper API** (`unstable_localLink` in [`src/integrations/tanstack-query/root-provider.tsx`](file:///c:/Users/gaming/Documents/GitHub/appsensi/src/integrations/tanstack-query/root-provider.tsx)) — End-to-end type-safe RPC wrapper (Zod input/output validation + SuperJSON `Date` hydration) executed directly in the browser, delegating all attendance and registration procedures to `appsensi-server`.
 2. **Backend REST & WebAuthn API** (`appsensi-server` at `VITE_WEBAUTHN_SERVER_URL`, defaulting to `http://localhost:8080`) — Go + Gin + GORM + `go-webauthn` service managing PostgreSQL persistence and FIDO2 / WebAuthn cryptographic ceremonies.
 
 ---
