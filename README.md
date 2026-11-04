@@ -13,9 +13,9 @@ Campus classroom attendance web application powered by WebAuthn passkeys, room &
 ## Tech Stack
 
 - **Framework**: [TanStack Start](https://tanstack.com/start), [TanStack Router](https://tanstack.com/router), [TanStack Query](https://tanstack.com/query), React 19, Vite 8
-- **API & Validation**: [tRPC v11](https://trpc.io), SuperJSON, Zod v4, T3 Env (`@t3-oss/env-core`)
-- **Database**: PostgreSQL, [Drizzle ORM](https://orm.drizzle.team) & Drizzle Kit
-- **Authentication**: [`@simplewebauthn/browser`](https://simplewebauthn.dev) + [`appsensi-server`](https://github.com/hapnan/appsensi-server) (`go-webauthn`)
+- **API & Validation**: [tRPC v11](https://trpc.io) (type-safe BFF wrapper over `appsensi-server`), SuperJSON, Zod v4, T3 Env (`@t3-oss/env-core`)
+- **Database Schema & Seeding**: PostgreSQL, [Drizzle ORM](https://orm.drizzle.team) & Drizzle Kit
+- **Backend & Authentication**: [`@simplewebauthn/browser`](https://simplewebauthn.dev) + [`appsensi-server`](https://github.com/hapnan/appsensi-server) (Go, Gin, GORM, `go-webauthn`)
 - **UI & Tooling**: Tailwind CSS v4, Shadcn UI / Radix UI, Lucide Icons, [Bun](https://bun.sh), [Biome](https://biomejs.dev)
 
 ## Documentation
@@ -33,29 +33,29 @@ Comprehensive project documentation, sequence diagrams, and architecture specifi
 
 - **[Bun](https://bun.sh)** `>= 1.0`
 - **PostgreSQL 18+** (uses native `uuidv7()` on `credentials.id`)
-- **[`appsensi-server`](https://github.com/hapnan/appsensi-server)** — Companion Go (`go-webauthn`) backend running by default on `http://localhost:8080` with CORS enabled for `http://localhost:3000`:
-  - **Endpoints used**:
+- **[`appsensi-server`](https://github.com/hapnan/appsensi-server)** — Backend Go (`Gin` + `GORM` + `go-webauthn`) service running by default on `http://localhost:8080` with CORS enabled for `http://localhost:3000`:
+  - **WebAuthn ceremony endpoints (called directly from the browser)**:
     - `POST /register/begin` & `POST /register/finish` — Passkey registration ceremony (`{ email, username }`, where `username` matches `students.student_id`, e.g. `STU-FCS-001`)
     - `POST /login/begin` & `POST /login/finish` — Passkey verification ceremony (`{ username }`) before recording attendance via `trpc.attendance.checkIn`
-  - **Shared PostgreSQL tables**:
-    - `users` — WebAuthn user accounts (linked to `students.user_id`)
-    - `webauthn_users` — Relying Party (`rp_id`) user handles
-    - `credentials` — Stored passkey public keys, AAGUID, attestation data, and sign counts
+  - **Attendance & registration REST endpoints (wrapped by tRPC for end-to-end type safety)**:
+    - `GET /attendance/demo-catalog`, `GET /attendance/roster`, `POST /attendance/check-in`
+    - `GET /registration/list`, `POST /registration/link-student`, `POST /registration/cleanup-incomplete`
 
 ## Environment Variables
 
 Create a `.env.local` (or `.env`) file in the project root:
 
 ```dotenv
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/appsensi"
 VITE_WEBAUTHN_SERVER_URL="http://localhost:8080"
+# Required only when running Drizzle CLI scripts (db:push, db:migrate, db:seed)
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/appsensi"
 ```
 
 | Variable | Scope | Required | Default | Description |
 | :--- | :--- | :---: | :--- | :--- |
-| `DATABASE_URL` | Server | Yes | — | PostgreSQL connection URL (shared with [`appsensi-server`](https://github.com/hapnan/appsensi-server)) |
+| `VITE_WEBAUTHN_SERVER_URL` | Client & Server | No | `http://localhost:8080` | Base URL of [`appsensi-server`](https://github.com/hapnan/appsensi-server) used by browser WebAuthn ceremonies and server-side tRPC procedures |
+| `DATABASE_URL` | CLI / DB Tools | For `db:*` | — | PostgreSQL connection URL used by Drizzle schema migration & seed scripts (`db:push`, `db:migrate`, `db:seed`) |
 | `SERVER_URL` | Server | No | — | Optional application server base URL |
-| `VITE_WEBAUTHN_SERVER_URL` | Client | No | `http://localhost:8080` | Base URL of [`appsensi-server`](https://github.com/hapnan/appsensi-server) |
 | `VITE_APP_TITLE` | Client | No | — | Optional custom application title |
 | `PORT` | Server | No | `3000` | Production Bun server port (`server.ts`) |
 | `HOST` | Server | No | `0.0.0.0` | Production Bun server bind address (`server.ts`) |
@@ -99,6 +99,7 @@ Open `http://localhost:3000` in your browser:
 | `bun run start` | Start the Bun production server (`server.ts`) |
 | `bun --bun run preview` | Preview the production build locally |
 | `bun run generate-routes` | Regenerate TanStack Router route tree (`tsr generate`) |
+| `bun test` | Run unit and tRPC-to-REST integration tests |
 | `bun --bun run check` | Run Biome formatting and lint checks |
 | `bun --bun run lint` | Run Biome linter |
 | `bun --bun run format` | Format source files with Biome |

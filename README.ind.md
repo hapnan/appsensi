@@ -13,9 +13,9 @@ Aplikasi web presensi kelas kampus berbasis *passkey* WebAuthn, penjadwalan ruan
 ## Teknologi
 
 - **Framework**: [TanStack Start](https://tanstack.com/start), [TanStack Router](https://tanstack.com/router), [TanStack Query](https://tanstack.com/query), React 19, Vite 8
-- **API & Validasi**: [tRPC v11](https://trpc.io), SuperJSON, Zod v4, T3 Env (`@t3-oss/env-core`)
-- **Basis Data**: PostgreSQL, [Drizzle ORM](https://orm.drizzle.team) & Drizzle Kit
-- **Autentikasi**: [`@simplewebauthn/browser`](https://simplewebauthn.dev) + [`appsensi-server`](https://github.com/hapnan/appsensi-server) (`go-webauthn`)
+- **API & Validasi**: [tRPC v11](https://trpc.io) (*wrapper* BFF bertipe aman di atas `appsensi-server`), SuperJSON, Zod v4, T3 Env (`@t3-oss/env-core`)
+- **Skema & Seeding Basis Data**: PostgreSQL, [Drizzle ORM](https://orm.drizzle.team) & Drizzle Kit
+- **Backend & Autentikasi**: [`@simplewebauthn/browser`](https://simplewebauthn.dev) + [`appsensi-server`](https://github.com/hapnan/appsensi-server) (Go, Gin, GORM, `go-webauthn`)
 - **UI & Perkakas**: Tailwind CSS v4, Shadcn UI / Radix UI, Lucide Icons, [Bun](https://bun.sh), [Biome](https://biomejs.dev)
 
 ## Dokumentasi
@@ -33,29 +33,29 @@ Dokumentasi teknis lengkap, diagram alur, dan spesifikasi arsitektur tersedia di
 
 - **[Bun](https://bun.sh)** `>= 1.0`
 - **PostgreSQL 18+** (menggunakan fungsi bawaan `uuidv7()` pada kolom `credentials.id`)
-- **[`appsensi-server`](https://github.com/hapnan/appsensi-server)** — Layanan backend pendamping berbasis Go (`go-webauthn`) yang berjalan secara *default* di `http://localhost:8080` dengan CORS aktif untuk `http://localhost:3000`:
-  - **Endpoint yang digunakan**:
+- **[`appsensi-server`](https://github.com/hapnan/appsensi-server)** — Layanan backend berbasis Go (`Gin` + `GORM` + `go-webauthn`) yang berjalan secara *default* di `http://localhost:8080` dengan CORS aktif untuk `http://localhost:3000`:
+  - **Endpoint seremoni WebAuthn (dipanggil langsung dari peramban)**:
     - `POST /register/begin` & `POST /register/finish` — Proses registrasi *passkey* (`{ email, username }`, di mana `username` sesuai dengan `students.student_id`, mis. `STU-FCS-001`)
     - `POST /login/begin` & `POST /login/finish` — Proses verifikasi *passkey* (`{ username }`) sebelum mencatat kehadiran melalui `trpc.attendance.checkIn`
-  - **Tabel PostgreSQL bersama**:
-    - `users` — Akun pengguna WebAuthn (terhubung ke `students.user_id`)
-    - `webauthn_users` — *User handle* untuk Relying Party (`rp_id`)
-    - `credentials` — Kunci publik *passkey*, AAGUID, data atestasi, dan penghitung tanda tangan (*sign count*)
+  - **Endpoint REST presensi & pendaftaran (dibungkus oleh tRPC untuk keamanan tipe *end-to-end*)**:
+    - `GET /attendance/demo-catalog`, `GET /attendance/roster`, `POST /attendance/check-in`
+    - `GET /registration/list`, `POST /registration/link-student`, `POST /registration/cleanup-incomplete`
 
 ## Variabel Lingkungan
 
 Buat berkas `.env.local` (atau `.env`) di direktori utama proyek:
 
 ```dotenv
-DATABASE_URL="postgresql://postgres:postgres@localhost:5432/appsensi"
 VITE_WEBAUTHN_SERVER_URL="http://localhost:8080"
+# Hanya diperlukan saat menjalankan skrip CLI Drizzle (db:push, db:migrate, db:seed)
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/appsensi"
 ```
 
 | Variabel | Cakupan | Wajib | Default | Deskripsi |
 | :--- | :--- | :---: | :--- | :--- |
-| `DATABASE_URL` | Server | Ya | — | URL koneksi PostgreSQL (digunakan bersama [`appsensi-server`](https://github.com/hapnan/appsensi-server)) |
+| `VITE_WEBAUTHN_SERVER_URL` | Klien & Server | Tidak | `http://localhost:8080` | URL dasar [`appsensi-server`](https://github.com/hapnan/appsensi-server) untuk seremoni WebAuthn di peramban dan prosedur tRPC di sisi server |
+| `DATABASE_URL` | CLI / DB Tools | Untuk `db:*` | — | URL koneksi PostgreSQL untuk migrasi skema & *seeding* Drizzle (`db:push`, `db:migrate`, `db:seed`) |
 | `SERVER_URL` | Server | Tidak | — | URL dasar server aplikasi (opsional) |
-| `VITE_WEBAUTHN_SERVER_URL` | Klien | Tidak | `http://localhost:8080` | URL dasar [`appsensi-server`](https://github.com/hapnan/appsensi-server) |
 | `VITE_APP_TITLE` | Klien | Tidak | — | Judul aplikasi kustom (opsional) |
 | `PORT` | Server | Tidak | `3000` | Port server produksi Bun (`server.ts`) |
 | `HOST` | Server | Tidak | `0.0.0.0` | Alamat *bind* server produksi Bun (`server.ts`) |
@@ -99,6 +99,7 @@ Buka `http://localhost:3000` di peramban:
 | `bun run start` | Menjalankan server produksi Bun (`server.ts`) |
 | `bun --bun run preview` | Menjalankan pratinjau hasil *build* produksi secara lokal |
 | `bun run generate-routes` | Memperbarui pohon rute TanStack Router (`tsr generate`) |
+| `bun test` | Menjalankan pengujian unit dan integrasi *wrapper* tRPC-ke-REST |
 | `bun --bun run check` | Menjalankan pemeriksaan pemformatan dan *linting* Biome |
 | `bun --bun run lint` | Menjalankan *linter* Biome |
 | `bun --bun run format` | Memformat berkas kode sumber menggunakan Biome |

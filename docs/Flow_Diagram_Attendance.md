@@ -12,13 +12,15 @@ The companion SVG diagram is available at [`Flow_Diagram_Attendance.svg`](./Flow
 sequenceDiagram
     autonumber
     actor U as User
-    participant App as appsensi (tRPC / Drizzle)
+    participant App as appsensi (tRPC Wrapper)
     participant Gin as appsensi-server (:8080)
     participant Auth as WebAuthn Authenticator
 
     %% Step 1: Initial Load
     U->>App: Open /attendance/:roomId (trpc.attendance.roster)
-    App-->>U: Active Schedule & Pending Roster (Students, Schedules, Counts)
+    App->>Gin: GET /attendance/roster?room=...&date=...
+    Gin-->>App: RosterResult JSON
+    App-->>U: Active Schedule & Pending Roster (Zod-validated)
 
     %% Step 2: User Action
     U->>U: Click Button Check In -> Open CheckInDialog and Click Confirm and Check In
@@ -35,9 +37,11 @@ sequenceDiagram
     Gin-->>U: 200 OK { status: "login success" }
 
     %% Step 4: Record Attendance in Database
-    Note over U,App: Record Attendance in PostgreSQL
+    Note over U,Gin: Record Attendance via Type-Safe tRPC Wrapper
     U->>App: trpc.attendance.checkIn({ room, studentId, scheduleId, date })
-    App-->>U: 200 OK CheckInResult (id, name, checkedInAt)
+    App->>Gin: POST /attendance/check-in
+    Gin-->>App: 200 OK CheckInResponse JSON
+    App-->>U: CheckInResult (id, name, checkedInAt: Date)
 
     %% Step 5: UI Reactive Update
     U->>U: Exit animation -> Present count +1, Toast confirmation
@@ -50,8 +54,8 @@ sequenceDiagram
 | Actor | Label in Diagram | Description & Responsibilities |
 | :--- | :--- | :--- |
 | **Person** | `User (Person)` | TanStack Start + React 19 frontend (`/attendance/$roomId`). Manages UI state, modal dialogs, and triggers the WebAuthn ceremony. |
-| **Application Server** | `appsensi (tRPC / Drizzle)` | tRPC router and Drizzle ORM on PostgreSQL. Resolves rooms, active schedules, enrolled rosters, and commits attendance records. |
-| **Auth Backend** | `appsensi-server (:8080)` | Companion Go backend (`go-webauthn`). Generates challenge assertions on `/login/begin` and cryptographically verifies signatures on `/login/finish`. |
+| **Application Server** | `appsensi (tRPC Wrapper)` | Type-safe tRPC v11 + Zod + SuperJSON BFF wrapper forwarding attendance queries/mutations to `appsensi-server`. |
+| **Backend & Auth Server** | `appsensi-server (:8080)` | Go + Gin + GORM + `go-webauthn` backend. Handles WebAuthn ceremonies (`/login/*`) and PostgreSQL attendance/roster endpoints (`/attendance/*`). |
 | **Client Authenticator** | `WebAuthn Authenticator` | Hardware security key, Touch ID, Face ID, Windows Hello, or platform passkey provider running via `@simplewebauthn/browser`. |
 
 ---

@@ -1,25 +1,25 @@
 # API Reference & Contracts — Appsensi
 
-Appsensi uses a hybrid API architecture consisting of:
-1. **tRPC v11 API** (`/api/trpc/*`) — End-to-end type-safe RPC procedures powering client UI interactions and database mutations.
-2. **Companion WebAuthn API** (`appsensi-server` on `http://localhost:8080`) — Dedicated Go service (`go-webauthn`) managing FIDO2 / WebAuthn cryptographic ceremonies.
+Appsensi uses a layered API architecture consisting of:
+1. **tRPC v11 Wrapper API** (`/api/trpc/*`) — End-to-end type-safe RPC wrapper (Zod input/output validation + SuperJSON `Date` serialization) that delegates all attendance and registration procedures to `appsensi-server`.
+2. **Backend REST & WebAuthn API** (`appsensi-server` at `VITE_WEBAUTHN_SERVER_URL`, defaulting to `http://localhost:8080`) — Go + Gin + GORM + `go-webauthn` service managing PostgreSQL persistence and FIDO2 / WebAuthn cryptographic ceremonies.
 
 ---
 
-## 1. tRPC API Reference
+## 1. tRPC Wrapper API Reference
 
-All procedures are exposed via `createTRPCRouter` at [`src/integrations/trpc/router.ts`](file:///c:/Users/gaming/Documents/GitHub/appsensi/src/integrations/trpc/router.ts).
+All procedures are exposed via `createTRPCRouter` at [`src/integrations/trpc/router.ts`](file:///c:/Users/gaming/Documents/GitHub/appsensi/src/integrations/trpc/router.ts) and call `appsensi-server` via [`src/integrations/trpc/server-client.ts`](file:///c:/Users/gaming/Documents/GitHub/appsensi/src/integrations/trpc/server-client.ts).
 
 ```
 trpc
 ├── attendance
-│   ├── demoCatalog   (Query)
-│   ├── roster        (Query)
-│   └── checkIn       (Mutation)
+│   ├── demoCatalog   (Query    -> GET  /attendance/demo-catalog)
+│   ├── roster        (Query    -> GET  /attendance/roster)
+│   └── checkIn       (Mutation -> POST /attendance/check-in)
 └── registration
-    ├── list                  (Query)
-    ├── linkStudentUser       (Mutation)
-    └── cleanupIncompleteUser (Mutation)
+    ├── list                  (Query    -> GET  /registration/list)
+    ├── linkStudentUser       (Mutation -> POST /registration/link-student)
+    └── cleanupIncompleteUser (Mutation -> POST /registration/cleanup-incomplete)
 ```
 
 ---
@@ -213,9 +213,22 @@ Removes an unverified `users` record (one with 0 passkey credentials) if a user 
 
 ---
 
-## 2. WebAuthn Companion API (`appsensi-server`)
+## 2. Backend REST & WebAuthn API (`appsensi-server`)
 
-The companion Go service runs on `http://localhost:8080` and directly accesses the shared PostgreSQL database.
+The Go backend service runs at `VITE_WEBAUTHN_SERVER_URL` (default `http://localhost:8080`) and owns all runtime PostgreSQL queries, attendance mutations, and WebAuthn ceremonies.
+
+| Method | Path | Caller | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/register/begin` | Browser | Generates WebAuthn registration challenge & creation options |
+| `POST` | `/register/finish` | Browser | Verifies attestation, stores passkey credential, and auto-links student |
+| `POST` | `/login/begin` | Browser | Generates WebAuthn assertion challenge & request options |
+| `POST` | `/login/finish` | Browser | Verifies assertion signature and updates credential sign counter |
+| `GET` | `/attendance/demo-catalog` | tRPC (`attendance.demoCatalog`) | Lists classrooms with scheduled courses and weekly sessions |
+| `GET` | `/attendance/roster` | tRPC (`attendance.roster`) | Returns active class session and pending student roster |
+| `POST` | `/attendance/check-in` | tRPC (`attendance.checkIn`) | Records verified student attendance for the active session |
+| `GET` | `/registration/list` | tRPC (`registration.list`) | Lists students paired with WebAuthn account & passkey status |
+| `POST` | `/registration/link-student` | tRPC (`registration.linkStudentUser`) | Idempotently links `students.user_id` to `users.id` |
+| `POST` | `/registration/cleanup-incomplete` | tRPC (`registration.cleanupIncompleteUser`) | Deletes unverified `users` record with zero passkey credentials |
 
 ### 2.1 `POST /register/begin`
 Initiates WebAuthn registration for a student.

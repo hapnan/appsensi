@@ -21,7 +21,7 @@ Welcome to the comprehensive technical documentation for **Appsensi**, a campus 
 
 ## 🏗️ System Overview
 
-Appsensi coordinates two backend components over a shared PostgreSQL database:
+Appsensi uses a layered architecture where `appsensi` serves the React 19 + TanStack Start UI and wraps [`appsensi-server`](https://github.com/hapnan/appsensi-server) JSON REST endpoints with tRPC + Zod for end-to-end type safety:
 
 ```mermaid
 flowchart TD
@@ -32,25 +32,25 @@ flowchart TD
     subgraph AppServer ["Application Runtime — Bun Server (:3000)"]
         BunRuntime["Bun Server (server.ts) — Static Asset Preloading, ETags, Gzip"]
         StartApp["TanStack Start SSR & Router (/ , /register, /attendance/:roomId)"]
-        TRPCApi["tRPC v11 API Router (attendance & registration)"]
+        TRPCApi["tRPC v11 Wrapper Router (Zod I/O Validation + SuperJSON)"]
         BunRuntime --> StartApp --> TRPCApi
     end
 
-    subgraph AuthServer ["Auth Companion Service — Go (:8080)"]
-        GoAuth["appsensi-server (go-webauthn) — FIDO2 Passkey Ceremonies"]
+    subgraph BackendServer ["Backend API & Auth Service — Go (:8080)"]
+        GoAuth["appsensi-server (Gin, GORM, go-webauthn) — REST API & FIDO2 Ceremonies"]
     end
 
     subgraph Database ["Persistence Layer — PostgreSQL 18+"]
-        Postgres[("PostgreSQL Database — 11 Tables, Native UUIDv7, Drizzle ORM")]
+        Postgres[("PostgreSQL Database — 11 Tables, Native UUIDv7")]
     end
 
     Browser -- "HTTP Requests & Static Assets" --> BunRuntime
-    Browser -- "tRPC API Requests" --> TRPCApi
-    Browser -- "Passkey Ceremonies (/register, /login)" --> GoAuth
+    Browser -- "tRPC API Requests (/api/trpc/*)" --> TRPCApi
+    TRPCApi -- "JSON REST (/attendance/*, /registration/*)" --> GoAuth
+    Browser -- "Passkey Ceremonies (/register/*, /login/*)" --> GoAuth
     GoAuth -- "Attestation & Assertion Options" --> Browser
 
-    TRPCApi -- "Drizzle ORM (attendance, roster, students)" --> Postgres
-    GoAuth -- "go-webauthn (users, credentials, webauthn_users)" --> Postgres
+    GoAuth -- "GORM + go-webauthn (All Runtime Queries & Writes)" --> Postgres
 ```
 
 ---

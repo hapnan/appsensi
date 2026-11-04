@@ -12,13 +12,15 @@ The companion SVG sequence diagram is available at [`Flow_Diagram_Register.svg`]
 sequenceDiagram
     autonumber
     actor U as User
-    participant App as appsensi (tRPC / Drizzle)
+    participant App as appsensi (tRPC Wrapper)
     participant Gin as appsensi-server (:8080)
     participant Auth as WebAuthn Authenticator
 
     %% Step 1: Load Student Roster
     U->>App: GET /register (trpc.registration.list)
-    App-->>U: Students LEFT JOIN users (Name, Username, Created At, Status)
+    App->>Gin: GET /registration/list
+    Gin-->>App: RegistrationStudentRow[] JSON
+    App-->>U: Students + Passkey Status (Zod-validated, createdAt: Date | null)
 
     %% Step 2: User Action
     U->>U: Click "Register" -> Enter Email in Modal
@@ -35,8 +37,10 @@ sequenceDiagram
     Gin-->>U: 200 OK { status: "registration success" }
 
     %% Step 4: Link Student to User Account
-    Note over U,App: Link Account in PostgreSQL
+    Note over U,Gin: Synchronize Account Link via Type-Safe tRPC Wrapper
     U->>App: trpc.registration.linkStudentUser({ studentId, username })
+    App->>Gin: POST /registration/link-student
+    Gin-->>App: { userId, email, createdAt } JSON
     App-->>U: Updated user link + refreshed table (Status checked, button disabled)
 ```
 
@@ -47,8 +51,8 @@ sequenceDiagram
 | Actor | Label in Diagram | Description & Responsibilities |
 | :--- | :--- | :--- |
 | **Browser Client** | `User (Browser)` | TanStack Start frontend running on `/register`. Manages student selection, email modal, and coordinates registration with `@simplewebauthn/browser`. |
-| **Application Server** | `appsensi (tRPC / Drizzle)` | Handles student queries, account linking in PostgreSQL, and unverified user cleanup. |
-| **Auth Backend** | `appsensi-server (:8080)` | Companion Go backend powered by `go-webauthn`. Generates public key creation options and cryptographically verifies attestation on key registration. |
+| **Application Server** | `appsensi (tRPC Wrapper)` | Type-safe tRPC v11 + Zod + SuperJSON BFF wrapper forwarding registration queries/mutations to `appsensi-server`. |
+| **Backend & Auth Server** | `appsensi-server (:8080)` | Go + Gin + GORM + `go-webauthn` backend. Handles passkey creation ceremonies (`/register/*`) and student registration REST endpoints (`/registration/*`). |
 | **Authenticator** | `WebAuthn Authenticator` | Platform authenticator (Apple Touch ID / Face ID, Windows Hello, Android Biometrics) or FIDO2 hardware security key (YubiKey). |
 
 ---

@@ -15,25 +15,25 @@ flowchart TD
     subgraph AppServer ["Application Runtime — Bun Server (:3000)"]
         BunRuntime["Bun Server (server.ts) — Static Asset Preloading, ETags, Gzip"]
         StartApp["TanStack Start SSR & Router (/ , /register, /attendance/:roomId)"]
-        TRPCApi["tRPC v11 API Router (attendance & registration)"]
+        TRPCApi["tRPC v11 Wrapper Router (Zod I/O Validation + SuperJSON)"]
         BunRuntime --> StartApp --> TRPCApi
     end
 
-    subgraph AuthServer ["Auth Companion Service — Go (:8080)"]
-        GoAuth["appsensi-server (go-webauthn) — FIDO2 Passkey Ceremonies"]
+    subgraph BackendServer ["Backend API & Auth Service — Go (:8080)"]
+        GoAuth["appsensi-server (Gin, GORM, go-webauthn) — REST API & FIDO2 Ceremonies"]
     end
 
     subgraph Database ["Persistence Layer — PostgreSQL 18+"]
-        Postgres[("PostgreSQL Database — 11 Tables, Native UUIDv7, Drizzle ORM")]
+        Postgres[("PostgreSQL Database — 11 Tables, Native UUIDv7")]
     end
 
     Browser -- "HTTP Requests & Static Assets" --> BunRuntime
-    Browser -- "tRPC API Requests" --> TRPCApi
-    Browser -- "Passkey Ceremonies (/register, /login)" --> GoAuth
+    Browser -- "tRPC API Requests (/api/trpc/*)" --> TRPCApi
+    TRPCApi -- "JSON REST (/attendance/*, /registration/*)" --> GoAuth
+    Browser -- "Passkey Ceremonies (/register/*, /login/*)" --> GoAuth
     GoAuth -- "Attestation & Assertion Options" --> Browser
 
-    TRPCApi -- "Drizzle ORM (attendance, roster, students)" --> Postgres
-    GoAuth -- "go-webauthn (users, credentials, webauthn_users)" --> Postgres
+    GoAuth -- "GORM + go-webauthn (All Runtime Queries & Writes)" --> Postgres
 ```
 
 ---
@@ -84,9 +84,10 @@ Incoming Request
 
 ---
 
-### 2.3 Authentication Layer (`appsensi-server`)
-WebAuthn passkey registration and verification are handled by a companion Go backend [`appsensi-server`](https://github.com/hapnan/appsensi-server) using `go-webauthn`:
-- **Protocol**: FIDO2 / WebAuthn Level 3 specification.
+### 2.3 Backend REST & Authentication Layer (`appsensi-server`)
+All runtime database queries, attendance mutations, and WebAuthn passkey ceremonies are handled by [`appsensi-server`](https://github.com/hapnan/appsensi-server) (`VITE_WEBAUTHN_SERVER_URL`, defaulting to `http://localhost:8080`) using Gin, GORM, and `go-webauthn`, while `appsensi`'s tRPC router wraps the REST JSON endpoints with Zod input/output schemas for end-to-end TypeScript safety:
+- **REST Endpoints**: `/attendance/{demo-catalog,roster,check-in}` and `/registration/{list,link-student,cleanup-incomplete}`.
+- **Protocol**: FIDO2 / WebAuthn Level 3 specification (`/register/{begin,finish}`, `/login/{begin,finish}`).
 - **Key Pairs**: Asymmetric cryptography (ES256, RS256, Ed25519). Private keys remain isolated inside user device hardware (Apple Secure Enclave, Android StrongBox, Windows Hello TPM).
 - **Challenge-Response**: Server-generated single-use cryptographic challenges prevent replay attacks.
 - **Clone Detection**: The monotonic `sign_count` in the `credentials` table is checked on every assertion; any decrease flags a clone warning (`clone_warning = true`).
@@ -94,7 +95,7 @@ WebAuthn passkey registration and verification are handled by a companion Go bac
 ---
 
 ### 2.4 Database & Persistence Layer
-PostgreSQL 18+ serves as the unified data store shared by both the Bun web app and the Go auth backend:
+PostgreSQL 18+ serves as the persistence store accessed at runtime by `appsensi-server` (via GORM) and managed for schema migrations/seeding by `appsensi`'s Drizzle CLI tooling (`db:push`, `db:migrate`, `db:seed`):
 
 | Table | Role | Key Architectural Feature |
 | :--- | :--- | :--- |
@@ -116,31 +117,31 @@ PostgreSQL 18+ serves as the unified data store shared by both the Bun web app a
 
 ### 3.1 Classroom Check-In Flow
 ```
-User (Browser)               appsensi-server (:8080)         appsensi (tRPC)           PostgreSQL
-      │                                │                            │                      │
-      │ 1. POST /login/begin           │                            │                      │
-      ├───────────────────────────────>│                            │                      │
-      │    { username }                │                            │                      │
-      │<───────────────────────────────┤                            │                      │
-      │    Challenge & Options         │                            │                      │
-      │                                │                            │                      │
-      │ 2. Touch ID / Device Passkey   │                            │                      │
-      │    (Cryptographic Signature)   │                            │                      │
-      │                                │                            │                      │
-      │ 3. POST /login/finish          │                            │                      │
-      ├───────────────────────────────>│                            │                      │
-      │    { assertion, signature }    │ Verify Signature           │                      │
-      │<───────────────────────────────┤ Update sign_count ─────────┼─────────────────────>│
-      │    200 OK                      │                            │                      │
-      │                                                             │                      │
-      │ 4. trpc.attendance.checkIn                                  │                      │
-      ├────────────────────────────────────────────────────────────>│                      │
-      │    { room, studentId, scheduleId, date }                    │ Validate Enrollment  │
-      │                                                             │ Check Idempotency    │
-      │                                                             │ INSERT INTO attendance
-      │                                                             ├─────────────────────>│
-      │<────────────────────────────────────────────────────────────┤                      │
-      │    200 OK (CheckInResult)                                   │                      │
+User (Browser)               appsensi (tRPC Wrapper)         appsensi-server (:8080)       PostgreSQL
+      │                                │                                │                      │
+      │ 1. POST /login/begin           │                                │                      │
+      ├────────────────────────────────┼───────────────────────────────>│                      │
+      │    { username }                │                                │                      │
+      │<───────────────────────────────┼────────────────────────────────┤                      │
+      │    Challenge & Options         │                                │                      │
+      │                                │                                │                      │
+      │ 2. Touch ID / Device Passkey   │                                │                      │
+      │    (Cryptographic Signature)   │                                │                      │
+      │                                │                                │                      │
+      │ 3. POST /login/finish          │                                │                      │
+      ├────────────────────────────────┼───────────────────────────────>│                      │
+      │    { assertion, signature }    │                                │ Verify Signature     │
+      │<───────────────────────────────┼────────────────────────────────┤ Update sign_count ──>│
+      │    200 OK                      │                                │                      │
+      │                                │                                │                      │
+      │ 4. trpc.attendance.checkIn     │                                │                      │
+      ├───────────────────────────────>│ POST /attendance/check-in      │                      │
+      │    { room, studentId, ... }    ├───────────────────────────────>│ Validate Enrollment  │
+      │                                │                                │ Check Idempotency    │
+      │                                │                                │ INSERT attendance ──>│
+      │                                │<───────────────────────────────┤                      │
+      │<───────────────────────────────┤ Zod Output Parse + SuperJSON   │                      │
+      │    CheckInResult (Date)        │                                │                      │
 ```
 
 ---
