@@ -137,22 +137,19 @@ const cleanupIncompleteUserInputSchema = z.object({
 
 const attendanceRouter = {
 	/** Lists all campus rooms that have scheduled courses along with their weekly class sessions. */
-	demoCatalog: publicProcedure
-		.output(demoCatalogListSchema)
-		.query(({ signal }) =>
-			fetchAppsensiServer({
-				path: "/attendance/demo-catalog",
-				schema: demoCatalogListSchema,
-				fallbackError: "Failed to load demo catalog",
-				signal,
-			}),
-		),
+	demoCatalog: publicProcedure.output(demoCatalogListSchema).query(() =>
+		fetchAppsensiServer({
+			path: "/attendance/demo-catalog",
+			schema: demoCatalogListSchema,
+			fallbackError: "Failed to load demo catalog",
+		}),
+	),
 
 	/** Students enrolled in the room's active class schedule that still need to check in on the target date. */
 	roster: publicProcedure
 		.input(rosterInputSchema)
 		.output(rosterResultSchema)
-		.query(({ input, signal }) =>
+		.query(({ input }) =>
 			fetchAppsensiServer({
 				path: "/attendance/roster",
 				query: {
@@ -162,7 +159,6 @@ const attendanceRouter = {
 				},
 				schema: rosterResultSchema,
 				fallbackError: "Failed to load room roster",
-				signal,
 			}),
 		),
 
@@ -170,7 +166,7 @@ const attendanceRouter = {
 	checkIn: publicProcedure
 		.input(checkInInputSchema)
 		.output(checkInResultSchema)
-		.mutation(({ input, signal }) =>
+		.mutation(({ input }) =>
 			fetchAppsensiServer({
 				method: "POST",
 				path: "/attendance/check-in",
@@ -182,29 +178,25 @@ const attendanceRouter = {
 				},
 				schema: checkInResultSchema,
 				fallbackError: "Failed to record attendance",
-				signal,
 			}),
 		),
 } satisfies TRPCRouterRecord;
 
 const registrationRouter = {
 	/** Lists all students paired with any matching account in the `users` table. */
-	list: publicProcedure
-		.output(registrationStudentListSchema)
-		.query(({ signal }) =>
-			fetchAppsensiServer({
-				path: "/registration/list",
-				schema: registrationStudentListSchema,
-				fallbackError: "Failed to load registration list",
-				signal,
-			}),
-		),
+	list: publicProcedure.output(registrationStudentListSchema).query(() =>
+		fetchAppsensiServer({
+			path: "/registration/list",
+			schema: registrationStudentListSchema,
+			fallbackError: "Failed to load registration list",
+		}),
+	),
 
 	/** Links `students.user_id` to `users.id` once WebAuthn registration finishes. */
 	linkStudentUser: publicProcedure
 		.input(linkStudentUserInputSchema)
 		.output(linkStudentUserResultSchema)
-		.mutation(({ input, signal }) =>
+		.mutation(({ input }) =>
 			fetchAppsensiServer({
 				method: "POST",
 				path: "/registration/link-student",
@@ -214,7 +206,6 @@ const registrationRouter = {
 				},
 				schema: linkStudentUserResultSchema,
 				fallbackError: "Failed to link student user",
-				signal,
 			}),
 		),
 
@@ -225,7 +216,7 @@ const registrationRouter = {
 	cleanupIncompleteUser: publicProcedure
 		.input(cleanupIncompleteUserInputSchema)
 		.output(cleanupIncompleteUserResultSchema)
-		.mutation(({ input, signal }) =>
+		.mutation(({ input }) =>
 			fetchAppsensiServer({
 				method: "POST",
 				path: "/registration/cleanup-incomplete",
@@ -234,7 +225,6 @@ const registrationRouter = {
 				},
 				schema: cleanupIncompleteUserResultSchema,
 				fallbackError: "Failed to clean up incomplete user",
-				signal,
 			}),
 		),
 } satisfies TRPCRouterRecord;

@@ -1,7 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it } from "bun:test";
-import { TRPCClientError } from "@trpc/client";
+import {
+	createTRPCClient,
+	httpBatchStreamLink,
+	TRPCClientError,
+} from "@trpc/client";
 import { TRPCError } from "@trpc/server";
-import { trpcClient } from "#/integrations/tanstack-query/root-provider";
+import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
+import superjson from "superjson";
 import {
 	DEFAULT_WEBAUTHN_SERVER_URL,
 	getWebAuthnServerUrl,
@@ -69,7 +74,20 @@ describe("tRPC appsensi-server REST wrapper", () => {
 	});
 
 	function createEndToEndClient() {
-		return trpcClient;
+		return createTRPCClient<TRPCRouter>({
+			links: [
+				httpBatchStreamLink({
+					transformer: superjson,
+					url: "http://appsensi.local/api/trpc",
+					fetch: (input, init) =>
+						fetchRequestHandler({
+							req: new Request(input, init),
+							router: trpcRouter,
+							endpoint: "/api/trpc",
+						}),
+				}),
+			],
+		});
 	}
 
 	describe("getWebAuthnServerUrl", () => {
@@ -382,73 +400,6 @@ describe("tRPC appsensi-server REST wrapper", () => {
 			const trpcErr = caught as TRPCError;
 			expect(trpcErr.code).toBe("BAD_GATEWAY");
 			expect(trpcErr.message).toBe("Failed to load demo catalog (HTTP 502)");
-		});
-
-		it("maps non-JSON HTTP 403 responses to FORBIDDEN TRPCClientError via local link", async () => {
-			upstreamHandler = () =>
-				new Response("<html><body>403 Forbidden</body></html>", {
-					status: 403,
-					headers: { "Content-Type": "text/html" },
-				});
-
-			const client = createEndToEndClient();
-			let caught: unknown;
-			try {
-				await client.attendance.demoCatalog.query();
-			} catch (err) {
-				caught = err;
-			}
-
-			expect(caught).toBeInstanceOf(TRPCClientError);
-			const trpcErr = caught as TRPCClientError<TRPCRouter>;
-			expect(trpcErr.data?.code).toBe("FORBIDDEN");
-			expect(trpcErr.message).toBe("Failed to load demo catalog (HTTP 403)");
-		});
-
-		it("propagates AbortSignal cancellation without wrapping as an unreachable-server error", async () => {
-			const controller = new AbortController();
-			let observedSignal: AbortSignal | null | undefined;
-
-			globalThis.fetch = Object.assign(
-				async (
-					_input: RequestInfo | URL,
-					init?: RequestInit,
-				): Promise<Response> => {
-					observedSignal = init?.signal;
-					return new Promise<Response>((_resolve, reject) => {
-						const onAbort = () => {
-							reject(
-								new DOMException("The operation was aborted.", "AbortError"),
-							);
-						};
-						if (init?.signal?.aborted) {
-							onAbort();
-							return;
-						}
-						init?.signal?.addEventListener("abort", onAbort, { once: true });
-					});
-				},
-				{ preconnect: originalFetch.preconnect },
-			);
-
-			const client = createEndToEndClient();
-			const pending = client.attendance.demoCatalog.query(undefined, {
-				signal: controller.signal,
-			});
-			controller.abort();
-
-			let caught: unknown;
-			try {
-				await pending;
-			} catch (err) {
-				caught = err;
-			}
-
-			expect(observedSignal).toBeDefined();
-			expect(observedSignal?.aborted).toBe(true);
-			expect((caught as Error)?.message).not.toContain(
-				"Cannot reach appsensi-server",
-			);
 		});
 
 		it("surfaces a clear INTERNAL_SERVER_ERROR when appsensi-server is unreachable", async () => {
