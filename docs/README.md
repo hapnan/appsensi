@@ -25,16 +25,15 @@ Appsensi uses a layered architecture where `appsensi` serves the React 19 + TanS
 
 ```mermaid
 flowchart TD
-    subgraph Client ["Client Layer (Browser)"]
+    subgraph Client ["Client Layer"]
         Browser["Browser Client (React 19, TanStack Start, Tailwind v4, @simplewebauthn/browser)"]
-        TRPCApi["tRPC v11 Local Wrapper (unstable_localLink + Zod I/O Validation + SuperJSON)"]
-        Browser --> TRPCApi
     end
 
     subgraph AppServer ["Application Runtime — Bun Server (:3000)"]
         BunRuntime["Bun Server (server.ts) — Static Asset Preloading, ETags, Gzip"]
-        StartApp["TanStack Start HTML Shell (/ , /register, /attendance/:roomId)"]
-        BunRuntime --> StartApp
+        StartApp["TanStack Start SSR & Router (/ , /register, /attendance/:roomId)"]
+        TRPCApi["tRPC v11 Wrapper Router (Zod I/O Validation + SuperJSON)"]
+        BunRuntime --> StartApp --> TRPCApi
     end
 
     subgraph BackendServer ["Backend API & Auth Service — Go (:8080)"]
@@ -45,8 +44,9 @@ flowchart TD
         Postgres[("PostgreSQL Database — 11 Tables, Native UUIDv7")]
     end
 
-    Browser -- "HTTP Shell & Static Assets" --> BunRuntime
-    TRPCApi -- "Browser fetch() JSON REST (/attendance/*, /registration/*)" --> GoAuth
+    Browser -- "HTTP Requests & Static Assets" --> BunRuntime
+    Browser -- "tRPC API Requests (/api/trpc/*)" --> TRPCApi
+    TRPCApi -- "JSON REST (/attendance/*, /registration/*)" --> GoAuth
     Browser -- "Passkey Ceremonies (/register/*, /login/*)" --> GoAuth
     GoAuth -- "Attestation & Assertion Options" --> Browser
 

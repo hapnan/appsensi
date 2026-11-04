@@ -51,7 +51,7 @@ sequenceDiagram
 | Actor | Label in Diagram | Description & Responsibilities |
 | :--- | :--- | :--- |
 | **Browser Client** | `User (Browser)` | TanStack Start frontend running on `/register`. Manages student selection, email modal, and coordinates registration with `@simplewebauthn/browser`. |
-| **tRPC Wrapper** | `appsensi (tRPC Wrapper)` | Browser-local tRPC v11 + Zod + SuperJSON wrapper (`unstable_localLink`) forwarding registration queries/mutations from the browser to `appsensi-server`. |
+| **Application Server** | `appsensi (tRPC Wrapper)` | Type-safe tRPC v11 + Zod + SuperJSON BFF wrapper forwarding registration queries/mutations to `appsensi-server`. |
 | **Backend & Auth Server** | `appsensi-server (:8080)` | Go + Gin + GORM + `go-webauthn` backend. Handles passkey creation ceremonies (`/register/*`) and student registration REST endpoints (`/registration/*`). |
 | **Authenticator** | `WebAuthn Authenticator` | Platform authenticator (Apple Touch ID / Face ID, Windows Hello, Android Biometrics) or FIDO2 hardware security key (YubiKey). |
 
