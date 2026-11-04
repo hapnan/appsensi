@@ -2,8 +2,13 @@ export const DEFAULT_WEBAUTHN_SERVER_URL = "http://localhost:8080";
 
 /** Resolves the configured external WebAuthn server base URL without trailing slashes. */
 export function getWebAuthnServerUrl() {
+	const processUrl =
+		typeof process !== "undefined"
+			? process.env?.VITE_WEBAUTHN_SERVER_URL
+			: undefined;
 	const raw =
-		import.meta.env.VITE_WEBAUTHN_SERVER_URL?.trim() ||
+		processUrl?.trim() ||
+		import.meta.env?.VITE_WEBAUTHN_SERVER_URL?.trim() ||
 		DEFAULT_WEBAUTHN_SERVER_URL;
 	return raw.replace(/\/+$/, "");
 }
