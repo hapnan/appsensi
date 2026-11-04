@@ -1,17 +1,24 @@
 import { QueryClient } from "@tanstack/react-query";
-import { createTRPCClient, unstable_localLink } from "@trpc/client";
+import { createTRPCClient, httpBatchStreamLink } from "@trpc/client";
 import { createTRPCOptionsProxy } from "@trpc/tanstack-react-query";
 import type { ReactNode } from "react";
 import superjson from "superjson";
 import { TRPCProvider } from "#/integrations/trpc/react";
-import { type TRPCRouter, trpcRouter } from "#/integrations/trpc/router";
+import type { TRPCRouter } from "#/integrations/trpc/router";
+
+function getUrl() {
+	const base = (() => {
+		if (typeof window !== "undefined") return "";
+		return `http://localhost:${process.env.PORT ?? 3000}`;
+	})();
+	return `${base}/api/trpc`;
+}
 
 export const trpcClient = createTRPCClient<TRPCRouter>({
 	links: [
-		unstable_localLink({
-			router: trpcRouter,
-			createContext: async () => ({}),
+		httpBatchStreamLink({
 			transformer: superjson,
+			url: getUrl(),
 		}),
 	],
 });
