@@ -96,7 +96,7 @@ export async function fetchAppsensiServer<TSchema extends z.ZodType>({
 	schema,
 	fallbackError,
 }: FetchAppsensiServerOptions<TSchema>): Promise<z.output<TSchema>> {
-	const baseUrl = getWebAuthnServerUrl();
+	const baseUrl = getWebAuthnServerUrl() || process.env?.WEBAUTHN_SERVER_URL;
 	const url = new URL(`${baseUrl}${path}`);
 
 	if (query) {
