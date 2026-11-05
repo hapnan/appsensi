@@ -9,6 +9,7 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import superjson from "superjson";
 import {
 	DEFAULT_WEBAUTHN_SERVER_URL,
+	getAppsensiServerUrl,
 	getWebAuthnServerUrl,
 } from "#/lib/webauthn";
 import { type TRPCRouter, trpcRouter } from "./router";
@@ -27,12 +28,14 @@ const SAMPLE_USER_UUID = "01960000-0000-7000-8000-000000000003";
 describe("tRPC appsensi-server REST wrapper", () => {
 	const originalFetch = globalThis.fetch;
 	const originalServerUrl = process.env.VITE_WEBAUTHN_SERVER_URL;
+	const originalInternalServerUrl = process.env.WEBAUTHN_SERVER_URL;
 	let recorded: RecordedRequest[] = [];
 	let upstreamHandler: (req: RecordedRequest) => Response | Promise<Response>;
 
 	beforeEach(() => {
 		recorded = [];
 		delete process.env.VITE_WEBAUTHN_SERVER_URL;
+		delete process.env.WEBAUTHN_SERVER_URL;
 
 		upstreamHandler = () =>
 			Response.json(
@@ -71,6 +74,11 @@ describe("tRPC appsensi-server REST wrapper", () => {
 		} else {
 			process.env.VITE_WEBAUTHN_SERVER_URL = originalServerUrl;
 		}
+		if (originalInternalServerUrl === undefined) {
+			delete process.env.WEBAUTHN_SERVER_URL;
+		} else {
+			process.env.WEBAUTHN_SERVER_URL = originalInternalServerUrl;
+		}
 	});
 
 	function createEndToEndClient() {
@@ -90,16 +98,30 @@ describe("tRPC appsensi-server REST wrapper", () => {
 		});
 	}
 
-	describe("getWebAuthnServerUrl", () => {
+	describe("getWebAuthnServerUrl & getAppsensiServerUrl", () => {
 		it("defaults to http://localhost:8080 when VITE_WEBAUTHN_SERVER_URL is unset", () => {
 			expect(getWebAuthnServerUrl()).toBe(DEFAULT_WEBAUTHN_SERVER_URL);
 			expect(getWebAuthnServerUrl()).toBe("http://localhost:8080");
+			expect(getAppsensiServerUrl()).toBe("http://localhost:8080");
 		});
 
 		it("trims whitespace and trailing slashes from VITE_WEBAUTHN_SERVER_URL", () => {
 			process.env.VITE_WEBAUTHN_SERVER_URL =
 				"  https://passkey.hapnanarsad.id///  ";
 			expect(getWebAuthnServerUrl()).toBe("https://passkey.hapnanarsad.id");
+		});
+
+		it("prioritizes WEBAUTHN_SERVER_URL over VITE_WEBAUTHN_SERVER_URL on the server", () => {
+			process.env.VITE_WEBAUTHN_SERVER_URL = "https://passkey.hapnanarsad.id";
+			process.env.WEBAUTHN_SERVER_URL = "http://appsensi-server:10000/";
+			expect(getWebAuthnServerUrl()).toBe("https://passkey.hapnanarsad.id");
+			expect(getAppsensiServerUrl()).toBe("http://appsensi-server:10000");
+		});
+
+		it("prepends http:// when WEBAUTHN_SERVER_URL is a bare Render hostport", () => {
+			process.env.VITE_WEBAUTHN_SERVER_URL = "https://passkey.hapnanarsad.id";
+			process.env.WEBAUTHN_SERVER_URL = "Appsensi-server:10000";
+			expect(getAppsensiServerUrl()).toBe("http://Appsensi-server:10000");
 		});
 	});
 
@@ -141,6 +163,21 @@ describe("tRPC appsensi-server REST wrapper", () => {
 			expect(rooms).toHaveLength(1);
 			expect(rooms[0]?.code).toBe("h.2.4");
 			expect(rooms[0]?.schedules[0]?.id).toBe(SAMPLE_SCHEDULE_ID);
+		});
+
+		it("routes tRPC requests via WEBAUTHN_SERVER_URL when both WEBAUTHN_SERVER_URL and VITE_WEBAUTHN_SERVER_URL are set", async () => {
+			process.env.VITE_WEBAUTHN_SERVER_URL = "https://passkey.hapnanarsad.id";
+			process.env.WEBAUTHN_SERVER_URL = "Appsensi-server:10000";
+			upstreamHandler = () => Response.json([]);
+
+			const client = createEndToEndClient();
+			const rooms = await client.attendance.demoCatalog.query();
+
+			expect(rooms).toEqual([]);
+			expect(recorded).toHaveLength(1);
+			expect(recorded[0]?.url).toBe(
+				"http://appsensi-server:10000/attendance/demo-catalog",
+			);
 		});
 
 		it("fetches GET /attendance/roster normalizing room code and omitting undefined optional params", async () => {

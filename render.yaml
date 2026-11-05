@@ -26,6 +26,11 @@ projects:
                 value: Appsensi
               - key: VITE_WEBAUTHN_SERVER_URL
                 value: https://passkey.hapnanarsad.id
+              - key: WEBAUTHN_SERVER_URL
+                fromService:
+                  type: web
+                  name: Appsensi-server
+                  property: hostport
               - key: SERVER_URL
                 value: https://hapnanarsad.id
           - type: web

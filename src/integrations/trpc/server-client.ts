@@ -1,6 +1,6 @@
 import { TRPCError } from "@trpc/server";
 import type { z } from "zod";
-import { getWebAuthnServerUrl } from "#/lib/webauthn";
+import { getAppsensiServerUrl } from "#/lib/webauthn";
 
 type TRPCErrorCode = TRPCError["code"];
 
@@ -84,9 +84,9 @@ export interface FetchAppsensiServerOptions<TSchema extends z.ZodType> {
 }
 
 /**
- * Calls a JSON REST endpoint on `appsensi-server` (`VITE_WEBAUTHN_SERVER_URL`),
- * translating HTTP/network failures into `TRPCError` and validating the JSON
- * response with the provided Zod schema.
+ * Calls a JSON REST endpoint on `appsensi-server` (`WEBAUTHN_SERVER_URL` or
+ * `VITE_WEBAUTHN_SERVER_URL`), translating HTTP/network failures into
+ * `TRPCError` and validating the JSON response with the provided Zod schema.
  */
 export async function fetchAppsensiServer<TSchema extends z.ZodType>({
 	method = "GET",
@@ -96,7 +96,7 @@ export async function fetchAppsensiServer<TSchema extends z.ZodType>({
 	schema,
 	fallbackError,
 }: FetchAppsensiServerOptions<TSchema>): Promise<z.output<TSchema>> {
-	const baseUrl = getWebAuthnServerUrl() || process.env?.WEBAUTHN_SERVER_URL;
+	const baseUrl = getAppsensiServerUrl();
 	const url = new URL(`${baseUrl}${path}`);
 
 	if (query) {
