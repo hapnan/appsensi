@@ -53,7 +53,8 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/appsensi"
 
 | Variable | Scope | Required | Default | Description |
 | :--- | :--- | :---: | :--- | :--- |
-| `VITE_WEBAUTHN_SERVER_URL` | Client & Server | No | `http://localhost:8080` | Base URL of [`appsensi-server`](https://github.com/hapnan/appsensi-server) used by browser WebAuthn ceremonies and server-side tRPC procedures |
+| `VITE_WEBAUTHN_SERVER_URL` | Client & Server | No | `http://localhost:8080` | Public base URL of [`appsensi-server`](https://github.com/hapnan/appsensi-server) used by browser WebAuthn ceremonies (and as the fallback for server-side tRPC procedures) |
+| `WEBAUTHN_SERVER_URL` | Server | No | `VITE_WEBAUTHN_SERVER_URL` | Optional internal URL or `host:port` (e.g. Render private network `hostport`) for server-side tRPC requests to `appsensi-server`, bypassing public CDN/WAF proxies |
 | `DATABASE_URL` | CLI / DB Tools | For `db:*` | — | PostgreSQL connection URL used by Drizzle schema migration & seed scripts (`db:push`, `db:migrate`, `db:seed`) |
 | `SERVER_URL` | Server | No | — | Optional application server base URL |
 | `VITE_APP_TITLE` | Client | No | — | Optional custom application title |

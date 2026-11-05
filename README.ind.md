@@ -53,7 +53,8 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/appsensi"
 
 | Variabel | Cakupan | Wajib | Default | Deskripsi |
 | :--- | :--- | :---: | :--- | :--- |
-| `VITE_WEBAUTHN_SERVER_URL` | Klien & Server | Tidak | `http://localhost:8080` | URL dasar [`appsensi-server`](https://github.com/hapnan/appsensi-server) untuk seremoni WebAuthn di peramban dan prosedur tRPC di sisi server |
+| `VITE_WEBAUTHN_SERVER_URL` | Klien & Server | Tidak | `http://localhost:8080` | URL publik [`appsensi-server`](https://github.com/hapnan/appsensi-server) untuk seremoni WebAuthn di peramban (serta *fallback* prosedur tRPC di sisi server) |
+| `WEBAUTHN_SERVER_URL` | Server | Tidak | `VITE_WEBAUTHN_SERVER_URL` | URL internal atau `host:port` (mis. jaringan privat Render `hostport`) untuk permintaan tRPC sisi server ke `appsensi-server` tanpa melewati proksi CDN/WAF publik |
 | `DATABASE_URL` | CLI / DB Tools | Untuk `db:*` | — | URL koneksi PostgreSQL untuk migrasi skema & *seeding* Drizzle (`db:push`, `db:migrate`, `db:seed`) |
 | `SERVER_URL` | Server | Tidak | — | URL dasar server aplikasi (opsional) |
 | `VITE_APP_TITLE` | Klien | Tidak | — | Judul aplikasi kustom (opsional) |

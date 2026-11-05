@@ -85,7 +85,7 @@ Incoming Request
 ---
 
 ### 2.3 Backend REST & Authentication Layer (`appsensi-server`)
-All runtime database queries, attendance mutations, and WebAuthn passkey ceremonies are handled by [`appsensi-server`](https://github.com/hapnan/appsensi-server) (`VITE_WEBAUTHN_SERVER_URL`, defaulting to `http://localhost:8080`) using Gin, GORM, and `go-webauthn`, while `appsensi`'s tRPC router wraps the REST JSON endpoints with Zod input/output schemas for end-to-end TypeScript safety:
+All runtime database queries, attendance mutations, and WebAuthn passkey ceremonies are handled by [`appsensi-server`](https://github.com/hapnan/appsensi-server) (`WEBAUTHN_SERVER_URL` for internal server-to-server tRPC requests and `VITE_WEBAUTHN_SERVER_URL` for browser WebAuthn requests, defaulting to `http://localhost:8080`) using Gin, GORM, and `go-webauthn`, while `appsensi`'s tRPC router wraps the REST JSON endpoints with Zod input/output schemas for end-to-end TypeScript safety:
 - **REST Endpoints**: `/attendance/{demo-catalog,roster,check-in}` and `/registration/{list,link-student,cleanup-incomplete}`.
 - **Protocol**: FIDO2 / WebAuthn Level 3 specification (`/register/{begin,finish}`, `/login/{begin,finish}`).
 - **Key Pairs**: Asymmetric cryptography (ES256, RS256, Ed25519). Private keys remain isolated inside user device hardware (Apple Secure Enclave, Android StrongBox, Windows Hello TPM).
