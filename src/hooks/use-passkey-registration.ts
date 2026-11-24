@@ -1,16 +1,15 @@
-import {
-	browserSupportsWebAuthn,
-	type PublicKeyCredentialCreationOptionsJSON,
-	startRegistration,
-} from "@simplewebauthn/browser";
+import type { PublicKeyCredentialCreationOptionsJSON } from "@simplewebauthn/browser";
 import { useMutation } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useTRPC } from "#/integrations/trpc/react";
 import type { TRPCRouter } from "#/integrations/trpc/router";
 import {
+	createPasskeyCredential,
+	ensurePasskeySupported,
 	getWebAuthnServerUrl,
 	readServerError,
+	signalUnknownPasskey,
 	unwrapPublicKeyOptions,
 } from "#/lib/webauthn";
 
@@ -24,12 +23,15 @@ export type LinkStudentResult =
 /**
  * Runs the WebAuthn passkey registration ceremony against `appsensi-server`:
  * 1. Sends `{ email, username }` in the POST body to `/register/begin`
- * 2. Prompts the browser/device authenticator via `startRegistration`
+ * 2. Prompts the browser/device authenticator via `PublicKeyCredential.parseCreationOptionsFromJSON`
+ *    and `navigator.credentials.create` (falling back to `@simplewebauthn/browser`)
  * 3. Sends `{ email, username, ...credential }` in the POST body to `/register/finish`
+ *    and invokes `PublicKeyCredential.signalUnknownCredential` with `optionsJSON.rp.id` if verification fails
  * 4. Synchronizes `students.user_id` with the newly created `users.id` row
  */
 export function usePasskeyRegistration() {
 	const trpc = useTRPC();
+	const abortRef = useRef<AbortController | null>(null);
 	const { mutateAsync: linkStudentUser } = useMutation(
 		trpc.registration.linkStudentUser.mutationOptions(),
 	);
@@ -49,9 +51,11 @@ export function usePasskeyRegistration() {
 			email: string;
 			onCreatingPasskey?: () => void;
 		}): Promise<LinkStudentResult> => {
-			if (!browserSupportsWebAuthn()) {
-				throw new Error("This browser does not support WebAuthn passkeys.");
-			}
+			await ensurePasskeySupported();
+
+			abortRef.current?.abort();
+			const abortController = new AbortController();
+			abortRef.current = abortController;
 
 			const serverUrl = getWebAuthnServerUrl();
 			const normalizedEmail = email.trim();
@@ -86,19 +90,36 @@ export function usePasskeyRegistration() {
 
 				const optionsJSON = unwrapPublicKeyOptions(rawOptions);
 
-				const credential = await startRegistration({ optionsJSON });
+				// Segregate client WebAuthn ceremony from server verification for Signal API handling
+				const credential = await createPasskeyCredential(
+					optionsJSON,
+					abortController.signal,
+				);
 
-				const finishRes = await fetch(`${serverUrl}/register/finish`, {
-					method: "POST",
-					headers: { "Content-Type": "application/json" },
-					body: JSON.stringify({
-						email: normalizedEmail,
-						username,
-						...credential,
-					}),
-				});
+				let finishRes: Response;
+				try {
+					finishRes = await fetch(`${serverUrl}/register/finish`, {
+						method: "POST",
+						headers: { "Content-Type": "application/json" },
+						body: JSON.stringify({
+							email: normalizedEmail,
+							username,
+							...credential,
+						}),
+					});
+				} catch (networkError) {
+					await signalUnknownPasskey({
+						rpId: optionsJSON.rp?.id,
+						credentialId: credential.id,
+					});
+					throw networkError;
+				}
 
 				if (!finishRes.ok) {
+					await signalUnknownPasskey({
+						rpId: optionsJSON.rp?.id,
+						credentialId: credential.id,
+					});
 					throw new Error(
 						await readServerError(
 							finishRes,

@@ -1,16 +1,15 @@
-import {
-	browserSupportsWebAuthn,
-	type PublicKeyCredentialRequestOptionsJSON,
-	startAuthentication,
-} from "@simplewebauthn/browser";
+import type { PublicKeyCredentialRequestOptionsJSON } from "@simplewebauthn/browser";
 import { useMutation } from "@tanstack/react-query";
 import type { inferRouterOutputs } from "@trpc/server";
-import { useCallback } from "react";
+import { useCallback, useRef } from "react";
 import { useTRPC } from "#/integrations/trpc/react";
 import type { TRPCRouter } from "#/integrations/trpc/router";
 import {
+	ensurePasskeySupported,
+	getPasskeyAssertion,
 	getWebAuthnServerUrl,
 	readServerError,
+	signalUnknownPasskey,
 	unwrapPublicKeyOptions,
 } from "#/lib/webauthn";
 
@@ -22,12 +21,15 @@ export type CheckInResult = RouterOutputs["attendance"]["checkIn"];
 /**
  * Runs the WebAuthn passkey login ceremony against `appsensi-server` and records attendance:
  * 1. Sends `{ username }` in the POST body to `/login/begin`
- * 2. Prompts the browser/device authenticator via `startAuthentication`
- * 3. Sends `{ username, ...assertion }` in the POST body to `/login/finish`
+ * 2. Prompts the browser/device authenticator via `PublicKeyCredential.parseRequestOptionsFromJSON`
+ *    and `navigator.credentials.get` (falling back to `@simplewebauthn/browser`)
+ * 3. Sends `{ username, ...assertion }` in the POST body to `/login/finish`, invoking
+ *    `PublicKeyCredential.signalUnknownCredential` with `optionsJSON.rpId` on HTTP 404
  * 4. Records attendance in PostgreSQL via `trpc.attendance.checkIn`
  */
 export function usePasskeyCheckIn() {
 	const trpc = useTRPC();
+	const abortRef = useRef<AbortController | null>(null);
 	const { mutateAsync: recordAttendance } = useMutation(
 		trpc.attendance.checkIn.mutationOptions(),
 	);
@@ -46,9 +48,11 @@ export function usePasskeyCheckIn() {
 			scheduleId?: string;
 			date?: string;
 		}): Promise<CheckInResult> => {
-			if (!browserSupportsWebAuthn()) {
-				throw new Error("This browser does not support WebAuthn passkeys.");
-			}
+			await ensurePasskeySupported();
+
+			abortRef.current?.abort();
+			const abortController = new AbortController();
+			abortRef.current = abortController;
 
 			const serverUrl = getWebAuthnServerUrl();
 
@@ -72,7 +76,10 @@ export function usePasskeyCheckIn() {
 				| PublicKeyCredentialRequestOptionsJSON;
 
 			const optionsJSON = unwrapPublicKeyOptions(rawOptions);
-			const assertion = await startAuthentication({ optionsJSON });
+			const assertion = await getPasskeyAssertion(
+				optionsJSON,
+				abortController.signal,
+			);
 
 			const finishRes = await fetch(`${serverUrl}/login/finish`, {
 				method: "POST",
@@ -84,6 +91,12 @@ export function usePasskeyCheckIn() {
 			});
 
 			if (!finishRes.ok) {
+				if (finishRes.status === 404) {
+					await signalUnknownPasskey({
+						rpId: optionsJSON.rpId,
+						credentialId: assertion.id,
+					});
+				}
 				throw new Error(
 					await readServerError(finishRes, "Passkey verification failed"),
 				);
