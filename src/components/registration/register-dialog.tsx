@@ -1,5 +1,5 @@
-import { Fingerprint, KeyRound, Mail } from "lucide-react";
-import { useEffect, useId, useState } from "react";
+import { AlertCircle, Fingerprint, KeyRound, Mail } from "lucide-react";
+import { useEffect, useId, useRef, useState } from "react";
 import { z } from "zod";
 import { Button } from "#/components/ui/button";
 import {
@@ -32,8 +32,13 @@ export function RegisterDialog({
 	onSubmit: (email: string) => void;
 }) {
 	const emailInputId = useId();
+	const emailHintId = `${emailInputId}-hint`;
+	const emailErrorId = `${emailInputId}-error`;
+	const emailInputRef = useRef<HTMLInputElement>(null);
 	const [email, setEmail] = useState("");
+	const [hasEdited, setHasEdited] = useState(false);
 	const [validationError, setValidationError] = useState<string | null>(null);
+	const [liveAnnouncement, setLiveAnnouncement] = useState("");
 
 	const creating = phase === "creating";
 
@@ -41,21 +46,41 @@ export function RegisterDialog({
 	useEffect(() => {
 		if (open) {
 			setEmail(student?.email ?? "");
+			setHasEdited(false);
 			setValidationError(null);
+			setLiveAnnouncement("");
 		}
 	}, [open, student?.email]);
+
+	const validateEmailValue = (rawValue: string): string | null => {
+		const parsed = emailSchema.safeParse(rawValue.trim());
+		if (parsed.success) return null;
+		return (
+			parsed.error.issues[0]?.message ?? "Please enter a valid email address."
+		);
+	};
+
+	const handleBlur = () => {
+		if (!hasEdited && !email.trim()) return;
+		const errorMsg = validateEmailValue(email);
+		setValidationError(errorMsg);
+		setLiveAnnouncement(errorMsg ? `Email Address: ${errorMsg}` : "");
+	};
 
 	const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
 		event.preventDefault();
 		const parsed = emailSchema.safeParse(email.trim());
 		if (!parsed.success) {
-			setValidationError(
+			const errorMsg =
 				parsed.error.issues[0]?.message ??
-					"Please enter a valid email address.",
-			);
+				"Please enter a valid email address.";
+			setValidationError(errorMsg);
+			setLiveAnnouncement("");
+			emailInputRef.current?.focus();
 			return;
 		}
 		setValidationError(null);
+		setLiveAnnouncement("");
 		onSubmit(parsed.data);
 	};
 
@@ -105,37 +130,73 @@ export function RegisterDialog({
 						</div>
 
 						<div className="grid gap-2">
-							<Label htmlFor={emailInputId}>Email Address</Label>
-							<div className="relative">
-								<Mail className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-outline" />
-								<Input
-									id={emailInputId}
-									type="email"
-									autoComplete="email"
-									autoFocus
-									placeholder="student@university.ac.id"
-									value={email}
-									aria-invalid={Boolean(validationError)}
-									onChange={(event) => {
-										setEmail(event.target.value);
-										if (validationError) setValidationError(null);
-									}}
-									className="pl-9"
-								/>
-							</div>
-							{validationError ? (
-								<p className="font-medium text-destructive text-xs">
-									{validationError}
-								</p>
-							) : (
-								<p className="text-[11px] text-muted-foreground">
+							<div className="grid gap-1">
+								<Label htmlFor={emailInputId}>Email Address</Label>
+								<p
+									id={emailHintId}
+									className="text-[11px] text-muted-foreground"
+								>
 									Sent with username{" "}
 									<code className="rounded bg-secondary px-1 py-0.5 font-mono text-[10px] text-foreground">
 										{student?.username}
 									</code>{" "}
 									in the request body.
 								</p>
+							</div>
+							<div className="relative">
+								<Mail className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-3 size-4 text-outline" />
+								<Input
+									ref={emailInputRef}
+									id={emailInputId}
+									name="email"
+									type="email"
+									inputMode="email"
+									autoComplete="email"
+									autoCorrect="off"
+									autoCapitalize="none"
+									spellCheck={false}
+									enterKeyHint="done"
+									required
+									autoFocus
+									placeholder="student@university.ac.id"
+									value={email}
+									aria-invalid={validationError ? "true" : "false"}
+									aria-describedby={
+										validationError
+											? `${emailHintId} ${emailErrorId}`
+											: emailHintId
+									}
+									onChange={(event) => {
+										setEmail(event.target.value);
+										setHasEdited(true);
+										if (validationError) {
+											setValidationError(null);
+											setLiveAnnouncement("");
+										}
+									}}
+									onBlur={handleBlur}
+									className="pl-9"
+								/>
+							</div>
+							{validationError && (
+								<p
+									id={emailErrorId}
+									className="flex items-center gap-1.5 font-medium text-destructive text-xs"
+								>
+									<AlertCircle
+										aria-hidden="true"
+										className="size-3.5 shrink-0"
+									/>
+									<span>{validationError}</span>
+								</p>
 							)}
+							<div
+								aria-live="polite"
+								aria-atomic="true"
+								className="visually-hidden"
+							>
+								{liveAnnouncement}
+							</div>
 						</div>
 
 						<DialogFooter className="border-t pt-4">
@@ -171,7 +232,10 @@ function CreatingPasskeyStep({
 		>
 			<div className="relative flex size-24 items-center justify-center">
 				<div className="absolute inset-0 animate-aura rounded-full bg-primary/10 motion-reduce:animate-none" />
-				<div className="size-20 animate-spin rounded-full border-4 border-secondary border-t-primary" />
+				<progress
+					aria-label="Creating passkey"
+					className="loading-spinner size-20"
+				/>
 				<Fingerprint className="absolute size-8 text-primary" />
 			</div>
 			<div className="space-y-2">
