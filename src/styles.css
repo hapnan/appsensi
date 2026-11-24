@@ -8,6 +8,10 @@
  * the shadcn/ui CSS variables so every shadcn component picks them up.
  */
 :root {
+  color-scheme: light;
+  accent-color: var(--primary);
+  scrollbar-color: var(--outline) transparent;
+
   --background: #f8f9ff; /* surface */
   --foreground: #0b1c30; /* on-surface */
   --card: #ffffff; /* surface-container-lowest */
@@ -160,16 +164,315 @@
   }
 }
 
-@layer base {
-  * {
-    @apply border-border outline-ring/50;
+@property --arc-start {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --arc-end {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@property --progress-dash-animation {
+  syntax: '*';
+  inherits: false;
+  initial-value: , progress-dash 3s ease-in-out infinite;
+}
+
+@keyframes progress-spin {
+  to {
+    rotate: 1turn;
   }
-  html,
+}
+
+@keyframes progress-dash {
+  from {
+    --arc-start: 0deg;
+    --arc-end: 3deg;
+  }
+  50% {
+    --arc-start: 100deg;
+    --arc-end: 358deg;
+  }
+  to {
+    --arc-start: 360deg;
+    --arc-end: 363deg;
+  }
+}
+
+@keyframes card-enter {
+  from {
+    opacity: 0;
+    scale: 0.96;
+  }
+}
+
+@keyframes card-exit {
+  to {
+    opacity: 0;
+    scale: 0.94;
+  }
+}
+
+@keyframes show-scroll-shadow {
+  to {
+    opacity: 1;
+  }
+}
+
+/*Accessible indeterminate loading spinner built on native <progress> */
+progress.loading-spinner:indeterminate {
+  --_from: calc(90deg + var(--arc-start, 0deg));
+  --_to: calc(90deg + var(--arc-end, 158deg));
+  --size: 5rem;
+  --thickness: 4px;
+  --spinner-color: var(--primary);
+  --track-color: var(--secondary);
+  --spinner-duration: 1.4s;
+  --_used-spinner-duration: var(--spinner-duration);
+
+  position: relative;
+  display: block;
+  width: var(--size);
+  height: var(--size);
+  border-radius: 50%;
+  appearance: none;
+  border: 0;
+  background:
+    conic-gradient(
+      from var(--_from),
+      var(--spinner-color) calc(var(--_to) - var(--_from)),
+      transparent 0
+    )
+    var(--track-color);
+
+  @supports (background-clip: border-area) {
+    background-clip: border-area;
+    border: var(--thickness) solid transparent;
+    background-origin: border-box;
+  }
+
+  @supports not (background-clip: border-area) {
+    --clip-boundary: calc(100% - var(--thickness));
+    mask-image: radial-gradient(
+      farthest-side,
+      transparent var(--clip-boundary),
+      black var(--clip-boundary)
+    );
+    border: 0;
+  }
+
+  @media (forced-colors: active) {
+    forced-color-adjust: none;
+    --spinner-color: CanvasText;
+    --track-color: Canvas;
+  }
+
+  animation:
+    progress-spin var(--_used-spinner-duration) linear infinite
+    var(--progress-dash-animation, );
+
+  @media (prefers-reduced-motion: reduce) {
+    --_used-spinner-duration: 6s;
+    --progress-dash-animation: ;
+    --arc-end: 158deg;
+  }
+}
+
+progress.loading-spinner:indeterminate::-webkit-progress-bar,
+progress.loading-spinner:indeterminate::-webkit-progress-value {
+  display: none;
+  background: none;
+}
+
+progress.loading-spinner:indeterminate::-moz-progress-bar {
+  display: none;
+  background: none;
+}
+
+/* View transitions for card grid rearrangements & SPA navigation */
+::view-transition {
+  pointer-events: none;
+}
+
+.student-card-transition {
+  view-transition-class: student-card;
+}
+
+::view-transition-group(.student-card) {
+  animation-duration: 0.28s;
+  animation-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+::view-transition-new(.student-card):only-child {
+  animation-name: card-enter;
+  animation-duration: 0.28s;
+  animation-timing-function: ease-out;
+}
+
+::view-transition-old(.student-card):only-child {
+  animation-name: card-exit;
+  animation-duration: 0.22s;
+  animation-timing-function: ease-in;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* State-aware sticky header container query */
+.sticky-page-header {
+  position: sticky;
+  inset-block-start: 0;
+  z-index: 20;
+  container-type: scroll-state;
+  container-name: page-header;
+}
+
+.sticky-page-header-bar {
+  transition:
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+@container page-header scroll-state(stuck: top) {
+  .sticky-page-header-bar {
+    background-color: color-mix(in oklab, var(--background) 92%, white 8%);
+    box-shadow: 0 4px 20px -4px rgb(11 28 48 / 0.08);
+  }
+}
+
+/* Scrollability affordance shadows for vertical scrollers */
+.scroll-shadows {
+  overflow-y: auto;
+  container-type: scroll-state;
+
+  &::before,
+  &::after {
+    content: '';
+    display: block;
+    position: sticky;
+    block-size: 0.75rem;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  &::before {
+    inset-block-start: 0;
+    margin-block-end: -0.75rem;
+    background: radial-gradient(
+      farthest-side at 50% 0,
+      rgb(11 28 48 / 0.12),
+      transparent
+    );
+  }
+
+  &::after {
+    inset-block-end: 0;
+    margin-block-start: -0.75rem;
+    background: radial-gradient(
+      farthest-side at 50% 100%,
+      rgb(11 28 48 / 0.12),
+      transparent
+    );
+  }
+}
+
+@container scroll-state(scrollable: block-start) {
+  .scroll-shadows::before {
+    opacity: 1;
+  }
+}
+
+@container scroll-state(scrollable: block-end) {
+  .scroll-shadows::after {
+    opacity: 1;
+  }
+}
+
+@supports not (container-type: scroll-state) {
+  .scroll-shadows::before,
+  .scroll-shadows::after {
+    animation: show-scroll-shadow linear both;
+    animation-timeline: scroll();
+  }
+
+  .scroll-shadows::before {
+    animation-range: 0 1.5rem;
+  }
+
+  .scroll-shadows::after {
+    animation-direction: reverse;
+    animation-range: calc(100% - 1.5rem) 100%;
+  }
+}
+
+/* Visually hidden utility keeping elements in the accessibility tree */
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Deferred rendering for below-the-fold roster cards and rows */
+.defer-card-render {
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 22rem;
+}
+
+.defer-row-render {
+  content-visibility: auto;
+  contain-intrinsic-size: auto none auto 3.5rem;
+}
+
+@layer base {
+  html {
+    min-height: 100%;
+    scroll-padding-block-start: 5rem;
+  }
   body {
     min-height: 100%;
+    line-height: 1.5;
+    font-size-adjust: from-font;
+    overflow-wrap: break-word;
+    @apply border-border bg-background font-sans text-foreground antialiased;
   }
-  body {
-    @apply bg-background font-sans text-foreground antialiased;
+  code,
+  kbd,
+  samp,
+  pre {
+    font-size-adjust: ch-width from-font;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    text-wrap: balance;
+  }
+  p,
+  li,
+  blockquote {
+    text-wrap: pretty;
+  }
+  :where(a, button, input, select, textarea, [tabindex]) {
+    @apply border-border outline-ring/50;
   }
   ::selection {
     background-color: var(--primary-fixed);
