@@ -125,11 +125,32 @@ export async function fetchAppsensiServer<TSchema extends z.ZodType>({
 			body: serializedBody,
 		});
 	} catch (error) {
-		throw new TRPCError({
-			code: "INTERNAL_SERVER_ERROR",
-			message: `Cannot reach appsensi-server at ${baseUrl}. Ensure the server is running.`,
-			cause: error,
-		});
+		if (
+			url.protocol === "https:" &&
+			(url.hostname === "localhost" || url.hostname === "127.0.0.1")
+		) {
+			try {
+				const httpFallbackUrl = new URL(url.toString());
+				httpFallbackUrl.protocol = "http:";
+				response = await fetch(httpFallbackUrl, {
+					method,
+					headers,
+					body: serializedBody,
+				});
+			} catch {
+				throw new TRPCError({
+					code: "INTERNAL_SERVER_ERROR",
+					message: `Cannot reach appsensi-server at ${baseUrl}. Ensure the server is running.`,
+					cause: error,
+				});
+			}
+		} else {
+			throw new TRPCError({
+				code: "INTERNAL_SERVER_ERROR",
+				message: `Cannot reach appsensi-server at ${baseUrl}. Ensure the server is running.`,
+				cause: error,
+			});
+		}
 	}
 
 	if (!response.ok) {
