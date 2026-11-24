@@ -129,7 +129,10 @@ function VerifyingStep({
 		>
 			<div className="relative flex size-24 items-center justify-center">
 				<div className="absolute inset-0 animate-aura rounded-full bg-primary/10 motion-reduce:animate-none" />
-				<div className="size-20 animate-spin rounded-full border-4 border-secondary border-t-primary" />
+				<progress
+					aria-label="Verifying passkey"
+					className="loading-spinner size-20"
+				/>
 				<Fingerprint className="absolute size-8 text-primary" />
 			</div>
 			<div className="space-y-2">
