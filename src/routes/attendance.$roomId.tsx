@@ -19,6 +19,7 @@ import {
 	useState,
 	useTransition,
 } from "react";
+import { flushSync } from "react-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import {
@@ -139,6 +140,7 @@ function AttendancePage() {
 		student: null,
 	});
 	const searchRef = useRef<HTMLInputElement>(null);
+	const headingRef = useRef<HTMLHeadingElement>(null);
 
 	// ⌘K / Ctrl+K focuses the search box.
 	useEffect(() => {
@@ -168,32 +170,59 @@ function AttendancePage() {
 		[],
 	);
 
-	const removeFromRoster = useCallback(
-		(result: CheckInResult) => {
-			setLeaving((current) => new Set(current).add(result.id));
-			window.setTimeout(() => {
-				queryClient.setQueryData<Roster>(rosterOptions.queryKey, (current) =>
-					current
-						? {
-								...current,
-								present: current.present + 1,
-								pending: current.pending.filter(
-									(student) => student.id !== result.id,
-								),
-							}
-						: current,
-				);
-				setLeaving((current) => {
-					const next = new Set(current);
-					next.delete(result.id);
-					return next;
-				});
-				void queryClient.invalidateQueries({
-					queryKey: rosterOptions.queryKey,
-				});
-			}, EXIT_ANIMATION_MS);
+	const applyRosterRemoval = useCallback(
+		(studentId: string) => {
+			queryClient.setQueryData<Roster>(rosterOptions.queryKey, (current) =>
+				current
+					? {
+							...current,
+							present: current.present + 1,
+							pending: current.pending.filter(
+								(student) => student.id !== studentId,
+							),
+						}
+					: current,
+			);
+			setLeaving((current) => {
+				const next = new Set(current);
+				next.delete(studentId);
+				return next;
+			});
+			void queryClient.invalidateQueries({
+				queryKey: rosterOptions.queryKey,
+			});
+			headingRef.current?.focus({ preventScroll: true });
 		},
 		[queryClient, rosterOptions.queryKey],
+	);
+
+	const removeFromRoster = useCallback(
+		(result: CheckInResult) => {
+			const prefersReducedMotion =
+				typeof window !== "undefined" &&
+				typeof window.matchMedia === "function" &&
+				window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+			if (
+				typeof document !== "undefined" &&
+				"startViewTransition" in document &&
+				typeof document.startViewTransition === "function" &&
+				!prefersReducedMotion
+			) {
+				document.startViewTransition(() => {
+					flushSync(() => {
+						applyRosterRemoval(result.id);
+					});
+				});
+				return;
+			}
+
+			setLeaving((current) => new Set(current).add(result.id));
+			window.setTimeout(() => {
+				applyRosterRemoval(result.id);
+			}, EXIT_ANIMATION_MS);
+		},
+		[applyRosterRemoval],
 	);
 
 	const confirmCheckIn = async () => {
@@ -233,64 +262,84 @@ function AttendancePage() {
 	};
 
 	return (
-		<div className="flex min-h-dvh flex-col">
-			<header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-md">
-				<div className="mx-auto flex w-full max-w-360 flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-					<div className="flex w-full max-w-3xl items-center gap-2">
-						<Button
-							asChild
-							variant="ghost"
-							size="icon"
-							className="shrink-0 rounded-full"
-						>
-							<Link to="/" search={homeSearch} aria-label="Back to room">
-								<ArrowLeft />
-							</Link>
-						</Button>
-						<div className="relative flex-1">
-							<Search className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-4 size-4 text-outline" />
-							<Input
-								ref={searchRef}
-								type="search"
-								value={search}
-								onChange={(event) => setSearch(event.target.value)}
-								placeholder="Search by name or student ID…"
-								aria-label="Search students"
-								className="h-10 rounded-full bg-card pr-16 pl-11 shadow-sm"
-							/>
-							<kbd className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 hidden rounded border bg-secondary px-2 py-0.5 font-mono text-[10px] text-outline sm:inline-flex">
-								⌘K
-							</kbd>
+		<div className="flex min-h-dvh flex-col [overflow-anchor:none]">
+			<a
+				href="#attendance-main"
+				className="visually-hidden focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-50 focus-visible:rounded-md focus-visible:bg-primary focus-visible:px-3 focus-visible:py-2 focus-visible:font-semibold focus-visible:text-primary-foreground focus-visible:text-xs focus-visible:shadow-md"
+			>
+				Skip to main content
+			</a>
+			<header className="sticky-page-header sticky top-0 z-20">
+				<div className="sticky-page-header-bar border-b bg-background/80 backdrop-blur-md">
+					<div className="mx-auto flex w-full max-w-360 flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+						<div className="flex w-full max-w-3xl items-center gap-2">
+							<Button
+								asChild
+								variant="ghost"
+								size="icon"
+								className="shrink-0 rounded-full"
+							>
+								<Link to="/" search={homeSearch} aria-label="Back to room">
+									<ArrowLeft />
+								</Link>
+							</Button>
+							<search className="relative flex-1">
+								<Search className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-4 size-4 text-outline" />
+								<Input
+									ref={searchRef}
+									type="search"
+									name="q"
+									autoComplete="off"
+									autoCorrect="off"
+									autoCapitalize="none"
+									spellCheck={false}
+									value={search}
+									onChange={(event) => setSearch(event.target.value)}
+									placeholder="Search by name or student ID…"
+									aria-label="Search students"
+									className="h-10 rounded-full bg-card pr-16 pl-11 shadow-sm"
+								/>
+								<kbd className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 hidden rounded border bg-secondary px-2 py-0.5 font-mono text-[10px] text-outline sm:inline-flex">
+									⌘K
+								</kbd>
+							</search>
 						</div>
-					</div>
 
-					<div className="flex shrink-0 flex-wrap items-center gap-2 self-end sm:self-center">
-						<div className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 shadow-sm">
-							<span className="size-2 animate-pulse rounded-full bg-success" />
-							<span className="font-medium font-mono text-[11px]">
-								{isCustomDate ? "Demo Session:" : "Live Session:"}{" "}
-								<strong className="text-primary">Room {label}</strong>
-							</span>
-						</div>
-						<div
-							className={cn(
-								"flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-medium font-mono text-[11px]",
-								isCustomDate
-									? "border-primary/30 bg-primary/10 text-primary"
-									: "bg-card text-muted-foreground shadow-sm",
-							)}
-						>
-							<CalendarDays className="size-3.5" />
-							<span>{dateLabel}</span>
-						</div>
-						<div className="rounded-full border bg-secondary px-3 py-1.5 font-medium font-mono text-[11px] text-muted-foreground">
-							{roster.present} / {roster.total} Present
+						<div className="flex shrink-0 flex-wrap items-center gap-2 self-end sm:self-center">
+							<div className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 shadow-sm">
+								<span className="size-2 animate-pulse rounded-full bg-success" />
+								<h1
+									ref={headingRef}
+									tabIndex={-1}
+									className="font-medium font-mono text-[11px] outline-hidden"
+								>
+									{isCustomDate ? "Demo Session:" : "Live Session:"}{" "}
+									<strong className="text-primary">Room {label}</strong>
+								</h1>
+							</div>
+							<div
+								className={cn(
+									"flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-medium font-mono text-[11px]",
+									isCustomDate
+										? "border-primary/30 bg-primary/10 text-primary"
+										: "bg-card text-muted-foreground shadow-sm",
+								)}
+							>
+								<CalendarDays className="size-3.5" />
+								<span>{dateLabel}</span>
+							</div>
+							<div className="rounded-full border bg-secondary px-3 py-1.5 font-medium font-mono text-[11px] text-muted-foreground">
+								{roster.present} / {roster.total} Present
+							</div>
 						</div>
 					</div>
 				</div>
 			</header>
 
-			<main className="mx-auto w-full max-w-360 flex-1 space-y-6 px-4 py-6 sm:px-6">
+			<main
+				id="attendance-main"
+				className="mx-auto w-full max-w-360 flex-1 space-y-6 px-4 py-6 sm:px-6"
+			>
 				{/* Course Session Context Banner */}
 				{roster.schedule && (
 					<div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border bg-card/60 p-3.5 backdrop-blur-xs">
@@ -386,12 +435,14 @@ function AttendancePage() {
 					/>
 				) : (
 					<div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-						{visible.map((student) => (
+						{visible.map((student, index) => (
 							<StudentCard
 								key={student.id}
 								student={student}
 								room={room}
 								date={homeSearch.date}
+								priority={index < 4}
+								deferRender={index >= 8}
 								leaving={leaving.has(student.id)}
 								onCheckIn={(target) =>
 									setDialog({

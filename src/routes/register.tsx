@@ -1,6 +1,14 @@
 import { useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Fingerprint, Search, Users, UserX } from "lucide-react";
+import {
+	ArrowLeft,
+	CheckCircle2,
+	Clock,
+	Fingerprint,
+	Search,
+	Users,
+	UserX,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -8,12 +16,13 @@ import {
 	RegisterDialog,
 	type RegisterPhase,
 } from "#/components/registration/register-dialog";
+import { Badge } from "#/components/ui/badge";
 import { Button } from "#/components/ui/button";
-import { Checkbox } from "#/components/ui/checkbox";
 import { Input } from "#/components/ui/input";
 import {
 	Table,
 	TableBody,
+	TableCaption,
 	TableCell,
 	TableHead,
 	TableHeader,
@@ -170,69 +179,88 @@ function RegistrationPage() {
 	};
 
 	return (
-		<div className="flex min-h-dvh flex-col">
-			<header className="sticky top-0 z-20 border-b bg-background/80 backdrop-blur-md">
-				<div className="mx-auto flex w-full max-w-360 flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-					<div className="flex w-full max-w-3xl items-center gap-2">
-						<Button
-							asChild
-							variant="ghost"
-							size="icon"
-							className="shrink-0 rounded-full"
-						>
-							{returnRoom && from !== "home" ? (
-								<Link
-									to="/attendance/$roomId"
-									params={{ roomId: returnRoom }}
-									search={{ date: returnDate }}
-									aria-label={`Back to Room ${parseRoom(returnRoom).label}`}
-								>
-									<ArrowLeft />
-								</Link>
-							) : (
-								<Link
-									to="/"
-									search={{ room: returnRoom, date: returnDate }}
-									aria-label="Back to home"
-								>
-									<ArrowLeft />
-								</Link>
-							)}
-						</Button>
-						<div className="relative flex-1">
-							<Search className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-4 size-4 text-outline" />
-							<Input
-								ref={searchRef}
-								type="search"
-								value={search}
-								onChange={(event) => setSearch(event.target.value)}
-								placeholder="Search by name or username…"
-								aria-label="Search students"
-								className="h-10 rounded-full bg-card pr-16 pl-11 shadow-sm"
-							/>
-							<kbd className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 hidden rounded border bg-secondary px-2 py-0.5 font-mono text-[10px] text-outline sm:inline-flex">
-								⌘K
-							</kbd>
+		<div className="flex min-h-dvh flex-col [overflow-anchor:none]">
+			<a
+				href="#register-main"
+				className="visually-hidden focus-visible:fixed focus-visible:top-3 focus-visible:left-3 focus-visible:z-50 focus-visible:rounded-md focus-visible:bg-primary focus-visible:px-3 focus-visible:py-2 focus-visible:font-semibold focus-visible:text-primary-foreground focus-visible:text-xs focus-visible:shadow-md"
+			>
+				Skip to main content
+			</a>
+			<header className="sticky-page-header sticky top-0 z-20">
+				<div className="sticky-page-header-bar border-b bg-background/80 backdrop-blur-md">
+					<div className="mx-auto flex w-full max-w-360 flex-col gap-3 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+						<div className="flex w-full max-w-3xl items-center gap-2">
+							<Button
+								asChild
+								variant="ghost"
+								size="icon"
+								className="shrink-0 rounded-full"
+							>
+								{returnRoom && from !== "home" ? (
+									<Link
+										to="/attendance/$roomId"
+										params={{ roomId: returnRoom }}
+										search={{ date: returnDate }}
+										aria-label={`Back to Room ${parseRoom(returnRoom).label}`}
+									>
+										<ArrowLeft />
+									</Link>
+								) : (
+									<Link
+										to="/"
+										search={{ room: returnRoom, date: returnDate }}
+										aria-label="Back to home"
+									>
+										<ArrowLeft />
+									</Link>
+								)}
+							</Button>
+							<search className="relative flex-1">
+								<Search className="-translate-y-1/2 pointer-events-none absolute top-1/2 left-4 size-4 text-outline" />
+								<Input
+									ref={searchRef}
+									type="search"
+									name="q"
+									autoComplete="off"
+									autoCorrect="off"
+									autoCapitalize="none"
+									spellCheck={false}
+									value={search}
+									onChange={(event) => setSearch(event.target.value)}
+									placeholder="Search by name or username…"
+									aria-label="Search students"
+									className="h-10 rounded-full bg-card pr-16 pl-11 shadow-sm"
+								/>
+								<kbd className="-translate-y-1/2 pointer-events-none absolute top-1/2 right-3 hidden rounded border bg-secondary px-2 py-0.5 font-mono text-[10px] text-outline sm:inline-flex">
+									⌘K
+								</kbd>
+							</search>
 						</div>
-					</div>
 
-					<div className="flex shrink-0 items-center gap-2 self-end sm:self-center">
-						<div className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 shadow-sm">
-							<span className="size-2 rounded-full bg-primary" />
-							<span className="font-medium font-mono text-[11px]">
-								WebAuthn Registration
-							</span>
-						</div>
-						<div className="rounded-full border bg-secondary px-3 py-1.5 font-medium font-mono text-[11px] text-muted-foreground">
-							{registeredCount} / {students.length} Registered
+						<div className="flex shrink-0 items-center gap-2 self-end sm:self-center">
+							<div className="flex items-center gap-2 rounded-full border bg-card px-3 py-1.5 shadow-sm">
+								<span className="size-2 rounded-full bg-primary" />
+								<span className="font-medium font-mono text-[11px]">
+									WebAuthn Registration
+								</span>
+							</div>
+							<div className="rounded-full border bg-secondary px-3 py-1.5 font-medium font-mono text-[11px] text-muted-foreground">
+								{registeredCount} / {students.length} Registered
+							</div>
 						</div>
 					</div>
 				</div>
 			</header>
 
-			<main className="mx-auto w-full max-w-360 flex-1 space-y-6 px-4 py-6 sm:px-6">
+			<main
+				id="register-main"
+				className="mx-auto w-full max-w-360 flex-1 space-y-6 px-4 py-6 sm:px-6"
+			>
 				<div className="space-y-1">
-					<h1 className="font-bold font-display text-2xl text-foreground tracking-tight">
+					<h1
+						id="register-heading"
+						className="font-bold font-display text-2xl text-foreground tracking-tight"
+					>
 						Student Passkey Registration
 					</h1>
 					<p className="text-muted-foreground text-sm">
@@ -258,34 +286,61 @@ function RegistrationPage() {
 					/>
 				) : (
 					<div className="overflow-hidden rounded-xl border bg-card shadow-xs">
-						<Table>
+						<Table
+							containerProps={{
+								"aria-labelledby": "register-heading",
+							}}
+						>
+							<TableCaption className="visually-hidden">
+								Student WebAuthn passkey registration directory
+							</TableCaption>
 							<TableHeader className="bg-muted/60">
 								<TableRow className="hover:bg-transparent">
-									<TableHead className="w-16 px-4 text-center font-mono text-xs">
+									<TableHead
+										scope="col"
+										className="w-16 px-4 text-center font-mono text-xs"
+									>
 										No.
 									</TableHead>
-									<TableHead className="px-4 font-semibold">Name</TableHead>
-									<TableHead className="px-4 font-semibold">Username</TableHead>
-									<TableHead className="px-4 font-semibold">
+									<TableHead scope="col" className="px-4 font-semibold">
+										Name
+									</TableHead>
+									<TableHead scope="col" className="px-4 font-semibold">
+										Username
+									</TableHead>
+									<TableHead scope="col" className="px-4 font-semibold">
 										Created At
 									</TableHead>
-									<TableHead className="w-28 px-4 text-center font-semibold">
+									<TableHead
+										scope="col"
+										className="w-28 px-4 text-center font-semibold"
+									>
 										Status
 									</TableHead>
-									<TableHead className="w-36 px-4 text-right font-semibold">
+									<TableHead
+										scope="col"
+										className="w-36 px-4 text-right font-semibold"
+									>
 										Action
 									</TableHead>
 								</TableRow>
 							</TableHeader>
 							<TableBody>
 								{visible.map((student, index) => (
-									<TableRow key={student.id}>
+									<TableRow
+										key={student.id}
+										className={index >= 12 ? "defer-row-render" : undefined}
+									>
 										<TableCell className="px-4 text-center font-mono text-muted-foreground text-xs">
 											{index + 1}
 										</TableCell>
-										<TableCell className="px-4 py-3 font-medium text-foreground">
+										<th
+											scope="row"
+											data-slot="table-cell"
+											className="px-4 py-3 text-left align-middle font-medium whitespace-nowrap text-foreground"
+										>
 											{student.name}
-										</TableCell>
+										</th>
 										<TableCell className="px-4 py-3 font-mono text-xs">
 											{student.username}
 										</TableCell>
@@ -294,17 +349,26 @@ function RegistrationPage() {
 										</TableCell>
 										<TableCell className="px-4 py-3 text-center">
 											<div className="flex items-center justify-center">
-												<Checkbox
-													checked={student.isRegistered}
-													aria-label={
-														student.isRegistered
-															? `${student.name} is registered`
-															: `${student.name} is not registered`
-													}
-													aria-readonly="true"
-													tabIndex={-1}
-													className="pointer-events-none"
-												/>
+												{student.isRegistered ? (
+													<Badge
+														variant="secondary"
+														className="gap-1 bg-success/12 font-mono text-[10px] text-emerald-700"
+													>
+														<CheckCircle2
+															aria-hidden="true"
+															className="size-3"
+														/>
+														Registered
+													</Badge>
+												) : (
+													<Badge
+														variant="outline"
+														className="gap-1 font-mono text-[10px] text-muted-foreground"
+													>
+														<Clock aria-hidden="true" className="size-3" />
+														Pending
+													</Badge>
+												)}
 											</div>
 										</TableCell>
 										<TableCell className="px-4 py-3 text-right">
@@ -312,6 +376,7 @@ function RegistrationPage() {
 												type="button"
 												size="sm"
 												disabled={student.isRegistered}
+												aria-label={`Register ${student.name}`}
 												onClick={() =>
 													setDialog({
 														open: true,

@@ -20,6 +20,9 @@ export const Route = createFileRoute("/")({
 			context.trpc.attendance.demoCatalog.queryOptions(),
 		);
 	},
+	head: () => ({
+		meta: [{ title: "PassKey Attend · Classroom Check-In" }],
+	}),
 	component: Home,
 });
 
@@ -70,13 +73,13 @@ function Home() {
 					</div>
 				</div>
 
-				<div className="relative my-1 animate-zoom-glow select-none [animation-delay:150ms] motion-reduce:animate-none">
+				<div className="relative my-1 animate-zoom-glow [animation-delay:150ms] motion-reduce:animate-none">
 					<div className="animate-float-gentle motion-reduce:animate-none">
 						<div
 							aria-hidden
 							className="-z-10 pointer-events-none absolute inset-0 scale-110 bg-linear-to-r from-primary via-primary-container to-[#006591] opacity-25 blur-3xl"
 						/>
-						<h1 className="font-display font-extrabold text-[clamp(4.5rem,17vw,10.5rem)] text-foreground leading-[0.95] tracking-tight drop-shadow-[0_4px_24px_rgba(11,28,48,0.06)]">
+						<h1 className="font-display font-extrabold text-[clamp(4.25rem,2rem+12vw,10.5rem)] text-foreground leading-[0.95] tracking-tight drop-shadow-[0_4px_24px_rgba(11,28,48,0.06)]">
 							{label}
 						</h1>
 					</div>
