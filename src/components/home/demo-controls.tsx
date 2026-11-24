@@ -223,18 +223,23 @@ export function DemoControls({
 						align="start"
 						className="w-[min(23rem,calc(100vw-2rem))] overflow-hidden rounded-xl p-0 shadow-lg"
 					>
-						<div className="flex items-center gap-2 border-b bg-muted/30 px-3 py-2.5">
+						<search className="flex items-center gap-2 border-b bg-muted/30 px-3 py-2.5">
 							<Search className="size-4 shrink-0 text-muted-foreground" />
 							<input
 								type="search"
+								name="room-filter"
+								autoComplete="off"
+								autoCorrect="off"
+								autoCapitalize="none"
+								spellCheck={false}
 								value={roomQuery}
 								onChange={(event) => setRoomQuery(event.target.value)}
 								placeholder="Filter room, faculty, or course…"
 								aria-label="Filter rooms"
 								className="w-full bg-transparent text-foreground text-xs placeholder:text-muted-foreground focus:outline-hidden"
 							/>
-						</div>
-						<div className="max-h-72 overflow-y-auto p-1.5">
+						</search>
+						<div className="scroll-shadows max-h-72 overflow-y-auto p-1.5">
 							{groupedRooms.length === 0 ? (
 								<p className="px-3 py-6 text-center text-muted-foreground text-xs">
 									No scheduled rooms match “{roomQuery.trim()}”.
